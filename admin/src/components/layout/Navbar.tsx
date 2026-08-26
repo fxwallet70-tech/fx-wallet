@@ -18,7 +18,7 @@ export default function Navbar() {
     <header className="navbar">
       <div className="navbar-left">
         <h3>Admin Dashboard</h3>
-        <p>Manage your Nexora platform</p>
+        <p>Manage your FX Wallet platform</p>
       </div>
 
       <div className="navbar-right">

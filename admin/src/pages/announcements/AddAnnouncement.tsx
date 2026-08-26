@@ -80,7 +80,7 @@ export default function AddAnnouncement() {
             <h1>Create Announcement</h1>
 
             <p>
-              Publish important updates and notices for Nexora users.
+              Publish important updates and notices for FX Wallet users.
             </p>
           </div>
 
@@ -243,7 +243,7 @@ export default function AddAnnouncement() {
             </div>
 
             <div className="preview-footer">
-              Nexora Admin • Just now
+              FX Wallet Admin • Just now
             </div>
           </div>
         </div>

@@ -50,10 +50,11 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.45)',
-    shadowColor: '#4A1803',
+    shadowColor: Theme.colors.accentShadow,
     shadowOffset: {width: 0, height: 8},
     shadowOpacity: 0.4,
     shadowRadius: 14,
+    boxShadow: '0px 8px 20px rgba(29,78,216,0.6), 0px 0px 16px rgba(96,165,250,0.4)',
     elevation: 9,
   },
 

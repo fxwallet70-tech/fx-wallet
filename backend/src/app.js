@@ -26,7 +26,7 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'Nexora Backend Running',
+    message: 'FX Wallet Backend Running',
   });
 });
 
@@ -56,6 +56,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/admin/returns',adminReturnRoutes,);
 app.use('/api/usdt-payment', require('./routes/usdtPaymentRoutes'));
 app.use('/api/payment-proof', require('./routes/paymentProofRoutes'));
+app.use('/api/cdm', require('./routes/cdmRoutes'));
 app.use('/api/referral', require('./routes/referralRoutes'));
 
 module.exports = app;

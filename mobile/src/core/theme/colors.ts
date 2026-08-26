@@ -1,61 +1,56 @@
 const Colors = {
   /*
-   * Accent family — Deep Burnt Orange
+   * Accent family — Deep Blue
    */
-  primary: '#A63606',
-  secondary: '#D96A1F',
+  primary: '#2563EB',
+  secondary: '#3B82F6',
 
-  primaryDeep: '#7E2604',
-  primarySoft: '#FFE0C2',
-  primaryGlow: '#FFB27A',
-  accentShadow: '#6E2103',
+  primaryDeep: '#1D4ED8',
+  primarySoft: '#DBEAFE',
+  primaryGlow: '#60A5FA',
+  accentShadow: '#1E3A8A',
 
-  background: 'transparent',
+  background: '#0B1120',
 
   /*
-   * Cards — light warm glass (transparent + glassy)
+   * Cards — dark glass (transparent + glassy)
    */
-  card: 'rgba(255,250,240,0.78)',
-  cardSolid: '#F7EDDD',
+  card: 'rgba(15,25,50,0.62)',
+  cardSolid: '#141E38',
 
   white: '#FFFFFF',
 
   /*
-   * On-card text (light glass cards -> black)
+   * On-card text (dark glass cards -> white)
    */
-  text: '#1A1A1A',
-  grey: '#6E6152',
+  text: '#EAF0F9',
+  grey: '#A6B3C7',
+  onLightText: '#EAF0F9',
+  onLightGrey: '#A6B3C7',
 
-  /*
-   * Text on the light warm background
-   * (page titles, subtitles, empty states)
-   */
-  onLightText: '#000000',
-  onLightGrey: '#4A4A4A',
+  border: '#1E3A6E',
 
-  border: '#8F6A2E',
-
-  success: '#16A34A',
-  warning: '#D97706',
-  danger: '#DC2626',
+  success: '#22C55E',
+  warning: '#F59E0B',
+  danger: '#EF4444',
 
   /*
    * Glassmorphism tokens
    */
-  glass: 'rgba(255,250,240,0.78)',
-  glassStrong: 'rgba(255,252,246,0.88)',
-  glassBorder: 'rgba(160,110,50,0.6)',
-  glassShadow: '#6B4A28',
-  hairline: 'rgba(160,110,50,0.25)',
+  glass: 'rgba(18,28,52,0.55)',
+  glassStrong: 'rgba(18,28,52,0.80)',
+  glassBorder: 'rgba(96,165,250,0.55)',
+  glassShadow: '#1E3A8A',
+  hairline: 'rgba(96,165,250,0.30)',
 
-  inputBg: 'rgba(255,250,240,0.75)',
+  inputBg: 'rgba(15,25,50,0.70)',
 
   onPrimary: '#FFFFFF',
-  onPrimarySoft: '#FFF3E6',
-  softAmber: '#FFE0C2',
+  onPrimarySoft: '#DBEAFE',
+  softAmber: '#DBEAFE',
 
-  cream: '#FFF4EC',
-  creamDeep: '#FFEEDD',
+  cream: '#0B1120',
+  creamDeep: '#0F172A',
 };
 
 export default Colors;

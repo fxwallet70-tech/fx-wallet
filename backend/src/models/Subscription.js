@@ -55,7 +55,7 @@ const subscriptionSchema = new mongoose.Schema(
 
     paymentMethod: {
       type: String,
-      enum: ["Wallet", "Razorpay"],
+      enum: ["Wallet", "Razorpay", "CDM"],
       required: true,
     },
 

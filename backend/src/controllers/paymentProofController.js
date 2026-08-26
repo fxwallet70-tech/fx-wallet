@@ -86,10 +86,13 @@ const submitProof = async (req, res) => {
   }
 };
 
-// Admin: list all submitted proofs
+// Admin: list all submitted proofs (wallet-deposit proofs only; CDM
+// plan-purchase requests are managed on the CDM page)
 const getProofs = async (req, res) => {
   try {
-    const proofs = await PaymentProof.find()
+    const proofs = await PaymentProof.find({
+      type: { $ne: 'plan_cdm' },
+    })
       .populate('user', 'fullName email mobile')
       .sort({ createdAt: -1 });
 

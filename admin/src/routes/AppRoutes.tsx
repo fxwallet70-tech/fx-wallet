@@ -19,6 +19,8 @@ import Returns from '../pages/returns/Returns';
 import UsdtPayment from '../pages/usdt/UsdtPayment'; 
 import PaymentProofs from "../pages/paymentProof/PaymentProofs";
 import ReferralSettingsPage from "../pages/referral/ReferralSettings";
+import CdmRequests from "../pages/cdm/CdmRequests";
+import CdmPayment from "../pages/cdm/CdmPayment";
 
 
 export default function AppRoutes() {
@@ -51,6 +53,8 @@ export default function AppRoutes() {
       <Route path="/returns" element={<Returns />}/>
       <Route path="/usdt-payment" element={<UsdtPayment />} />
       <Route path="/payment-proofs" element={<PaymentProofs />} />
+      <Route path="/cdm-requests" element={<CdmRequests />} />
+      <Route path="/cdm-payment" element={<CdmPayment />} />
       <Route path="/referral" element={<ReferralSettingsPage />} />
 
 

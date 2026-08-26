@@ -109,14 +109,12 @@ const HoverWiggle = ({
       onHoverIn={handleHoverIn}
       onHoverOut={handleHoverOut}
       onPressIn={handlePressIn}
-      onPressOut={handlePressOut}>
+      onPressOut={handlePressOut}
+      style={style}>
       <Animated.View
-        style={[
-          style,
-          {
-            transform: [{rotate}, {scale}, {translateY}],
-          },
-        ]}>
+        style={{
+          transform: [{rotate}, {scale}, {translateY}],
+        }}>
         {children}
       </Animated.View>
     </Pressable>

@@ -63,11 +63,14 @@ export default GlassCard;
 const styles = StyleSheet.create({
   blurClip: {
     overflow: 'hidden',
-    backgroundColor: 'rgba(255,250,240,0.4)',
+    // Keep this layer light so the animated background orbs show
+    // through the frosted blur — this is what reads as "glassy".
+    backgroundColor: 'rgba(15,25,50,0.22)',
   },
 
   glassSurface: {
     borderWidth: 1.5,
     borderColor: Theme.colors.glassBorder,
+    ...Theme.shadows.card,
   },
 });

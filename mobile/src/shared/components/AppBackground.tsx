@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     width: 380,
     height: 380,
     borderRadius: 190,
-    backgroundColor: 'rgba(255,190,110,0.35)',
+    backgroundColor: 'rgba(37,99,235,0.30)',
   },
 
   orb: {
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
     left: -70,
     width: 200,
     height: 200,
-    backgroundColor: 'rgba(255,165,90,0.30)',
+    backgroundColor: 'rgba(59,130,246,0.20)',
   },
 
   orb2: {
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
     right: -80,
     width: 240,
     height: 240,
-    backgroundColor: 'rgba(255,200,130,0.32)',
+    backgroundColor: 'rgba(96,165,250,0.18)',
   },
 
   orb3: {
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
     left: -50,
     width: 210,
     height: 210,
-    backgroundColor: 'rgba(255,175,105,0.26)',
+    backgroundColor: 'rgba(37,99,235,0.22)',
   },
 
   orb4: {
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     width: 250,
     height: 250,
     borderRadius: 125,
-    backgroundColor: 'rgba(255,215,160,0.38)',
+    backgroundColor: 'rgba(59,130,246,0.25)',
   },
 
   content: {

@@ -9,6 +9,8 @@ import {
   FiDollarSign,
   FiImage,
   FiGift,
+  FiShield,
+  FiBookOpen,
 } from "react-icons/fi";
 
 import { NavLink } from "react-router-dom";
@@ -60,6 +62,16 @@ const menus = [
     icon: <FiImage />,
   },
   {
+    name: "CDM Plan Purchases",
+    path: "/cdm-requests",
+    icon: <FiShield />,
+  },
+  {
+    name: "CDM Payment Info",
+    path: "/cdm-payment",
+    icon: <FiBookOpen />,
+  },
+  {
     name: "Refer & Earn",
     path: "/referral",
     icon: <FiGift />,
@@ -76,7 +88,7 @@ export default function Sidebar() {
         <div className="sidebar-logo">N</div>
 
         <div>
-          <h2>NEXORA</h2>
+          <h2>FX WALLET</h2>
           <span>Admin Panel</span>
         </div>
       </div>

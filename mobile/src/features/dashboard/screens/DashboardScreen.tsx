@@ -10,7 +10,6 @@ import {
   ScrollView,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
 } from 'react-native';
 
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
@@ -19,6 +18,7 @@ import Theme from '../../../core/theme/theme';
 import api from '../../../core/api/axios';
 import FadeInView from '../../../shared/components/animations/FadeInView';
 import PressableScale from '../../../shared/components/animations/PressableScale';
+import HoverWiggle from '../../../shared/components/animations/HoverWiggle';
 import GlassCard from '../../../shared/components/Card/GlassCard';
 
 interface DashboardUser {
@@ -384,10 +384,11 @@ const DashboardScreen = () => {
       </Text>
 
       <Text style={styles.welcomeText}>
-        Welcome back to Nexora
+        Welcome back to FX Wallet
       </Text>
 
       {announcements.length > 0 ? (
+        <HoverWiggle>
         <GlassCard style={styles.announcementCard}>
           <Text style={styles.announcementLabel}>
             📢 Latest Announcement
@@ -401,9 +402,11 @@ const DashboardScreen = () => {
             {announcements[0].message}
           </Text>
         </GlassCard>
+        </HoverWiggle>
       ) : null}
 
       <FadeInView delay={40}>
+      <HoverWiggle>
       <PressableScale
         style={styles.walletCard}
         onPress={() =>
@@ -467,6 +470,7 @@ const DashboardScreen = () => {
           </View>
         </View>
       </PressableScale>
+      </HoverWiggle>
       </FadeInView>
 
       <View style={styles.sectionHeader}>
@@ -489,6 +493,7 @@ const DashboardScreen = () => {
       {subscriptions.length > 0 ? (
         subscriptions.map(subscription => (
           <FadeInView key={subscription.id} delay={120}>
+          <HoverWiggle>
           <PressableScale
             onPress={() =>
               navigation.navigate(
@@ -583,9 +588,11 @@ const DashboardScreen = () => {
             </View>
             </GlassCard>
           </PressableScale>
+          </HoverWiggle>
           </FadeInView>
         ))
       ) : (
+        <HoverWiggle>
         <GlassCard style={styles.noPlanCard}>
           <Text style={styles.noPlanTitle}>
             No Active Plan
@@ -609,22 +616,29 @@ const DashboardScreen = () => {
             </Text>
           </PressableScale>
         </GlassCard>
+        </HoverWiggle>
       )}
 
-      <Text style={styles.sectionTitle}>
-        Quick Actions
-      </Text>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>
+          Quick Actions
+        </Text>
+      </View>
 
       <FadeInView delay={200}>
       <View style={styles.quickActionsGrid}>
+        <View style={styles.quickActionWrap}>
         <PressableScale
-          style={styles.quickActionCard}
+          style={styles.quickActionInner}
           onPress={() =>
             navigation.navigate('Plans')
           }>
+          <GlassCard style={styles.quickActionCard}>
+          <View style={styles.quickActionIconChip}>
           <Text style={styles.quickActionIcon}>
             P
           </Text>
+          </View>
 
           <Text style={styles.quickActionTitle}>
             Plans
@@ -633,16 +647,22 @@ const DashboardScreen = () => {
           <Text style={styles.quickActionText}>
             Browse plans
           </Text>
+          </GlassCard>
         </PressableScale>
+        </View>
 
+        <View style={styles.quickActionWrap}>
         <PressableScale
-          style={styles.quickActionCard}
+          style={styles.quickActionInner}
           onPress={() =>
             navigation.navigate('Wallet')
           }>
+          <GlassCard style={styles.quickActionCard}>
+          <View style={styles.quickActionIconChip}>
           <Text style={styles.quickActionIcon}>
             W
           </Text>
+          </View>
 
           <Text style={styles.quickActionTitle}>
             Wallet
@@ -651,18 +671,24 @@ const DashboardScreen = () => {
           <Text style={styles.quickActionText}>
             View balance
           </Text>
+          </GlassCard>
         </PressableScale>
+        </View>
 
+        <View style={styles.quickActionWrap}>
         <PressableScale
-          style={styles.quickActionCard}
+          style={styles.quickActionInner}
           onPress={() =>
             navigation.navigate(
               'MySubscription',
             )
           }>
+          <GlassCard style={styles.quickActionCard}>
+          <View style={styles.quickActionIconChip}>
           <Text style={styles.quickActionIcon}>
             S
           </Text>
+          </View>
 
           <Text style={styles.quickActionTitle}>
             Subscription
@@ -671,18 +697,24 @@ const DashboardScreen = () => {
           <Text style={styles.quickActionText}>
             Track maturity
           </Text>
+          </GlassCard>
         </PressableScale>
+        </View>
 
+        <View style={styles.quickActionWrap}>
         <PressableScale
-          style={styles.quickActionCard}
+          style={styles.quickActionInner}
           onPress={() =>
             navigation.navigate(
               'PaymentHistory',
             )
           }>
+          <GlassCard style={styles.quickActionCard}>
+          <View style={styles.quickActionIconChip}>
           <Text style={styles.quickActionIcon}>
             H
           </Text>
+          </View>
 
           <Text style={styles.quickActionTitle}>
             Payments
@@ -691,7 +723,9 @@ const DashboardScreen = () => {
           <Text style={styles.quickActionText}>
             View history
           </Text>
+          </GlassCard>
         </PressableScale>
+        </View>
       </View>
       </FadeInView>
 
@@ -718,8 +752,8 @@ const DashboardScreen = () => {
               'credit';
 
             return (
+              <HoverWiggle key={transaction._id}>
               <GlassCard
-                key={transaction._id}
                 style={
                   styles.transactionCard
                 }>
@@ -777,6 +811,7 @@ const DashboardScreen = () => {
                   )}
                 </Text>
               </GlassCard>
+              </HoverWiggle>
             );
           },
         )
@@ -907,12 +942,15 @@ const styles = StyleSheet.create({
     padding: 20,
     marginTop: 8,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: 'rgba(255,255,255,0.35)',
     shadowColor: Theme.colors.accentShadow,
     shadowOffset: {width: 0, height: 10},
     shadowOpacity: 0.35,
     shadowRadius: 16,
-    elevation: 8,
+    // Cross-platform blue glow around the card
+    boxShadow:
+      '0px 0px 22px 3px rgba(59,130,246,0.55), 0px 10px 24px rgba(30,58,138,0.5)',
+    elevation: 10,
   },
 
   walletHeader: {
@@ -960,14 +998,14 @@ const styles = StyleSheet.create({
   },
 
   pendingReturnValue: {
-    color: Theme.colors.primaryGlow,
+    color: '#E8F1FF',
     fontSize: 17,
     fontWeight: '800',
     marginTop: 4,
   },
 
   receivedReturnValue: {
-    color: '#C9F2D4',
+    color: '#D6F2DD',
     fontSize: 17,
     fontWeight: '800',
     marginTop: 4,
@@ -1107,34 +1145,52 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 
-  quickActionCard: {
+  quickActionWrap: {
     width: '48%',
-    backgroundColor: Theme.colors.card,
-    borderRadius: 15,
-    padding: 15,
-    marginBottom: 12,
-    borderWidth: 1.5,
-    borderColor: Theme.colors.glassBorder,
+    marginBottom: 10,
+  },
+
+  quickActionInner: {
+    width: '100%',
+  },
+
+  quickActionCard: {
+    width: '100%',
+    backgroundColor: Theme.colors.glass,
+    borderRadius: 14,
+    padding: 12,
+    alignItems: 'flex-start',
     ...Theme.shadows.card,
+  },
+
+  quickActionIconChip: {
+    width: 32,
+    height: 32,
+    borderRadius: 10,
+    backgroundColor: Theme.colors.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: Theme.colors.glassBorder,
   },
 
   quickActionIcon: {
     color: Theme.colors.primary,
-    fontSize: 19,
+    fontSize: 15,
     fontWeight: '900',
   },
 
   quickActionTitle: {
     color: Theme.colors.text,
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '800',
-    marginTop: 10,
+    marginTop: 8,
   },
 
   quickActionText: {
     color: Theme.colors.grey,
-    fontSize: 11,
-    marginTop: 4,
+    fontSize: 10,
+    marginTop: 3,
   },
 
   transactionCard: {

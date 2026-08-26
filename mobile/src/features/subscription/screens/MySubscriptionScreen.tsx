@@ -26,6 +26,7 @@ import {
   Subscription,
 } from '../../plans/services/planService';
 import PressableScale from '../../../shared/components/animations/PressableScale';
+import HoverWiggle from '../../../shared/components/animations/HoverWiggle';
 import GlassCard from '../../../shared/components/Card/GlassCard';
 
 const MySubscriptionScreen = () => {
@@ -309,6 +310,7 @@ const MySubscriptionScreen = () => {
         View your active plan details.
       </Text>
 
+      <HoverWiggle>
       <GlassCard style={styles.planCard}>
         <View style={styles.cardHeader}>
           <View>
@@ -346,7 +348,7 @@ const MySubscriptionScreen = () => {
 
         <Text style={styles.description}>
           {subscription.plan?.description ||
-            'Your active Nexora subscription.'}
+            'Your active FX Wallet subscription.'}
         </Text>
 
         <GlassCard style={styles.summaryContainer}>
@@ -516,6 +518,7 @@ const MySubscriptionScreen = () => {
           </Text>
         </PressableScale>
       </GlassCard>
+      </HoverWiggle>
     </ScrollView>
   );
 };

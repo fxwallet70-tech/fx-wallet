@@ -163,7 +163,7 @@ const LoginScreen = ({navigation}: Props) => {
       />
 
       <View style={styles.logoContainer}>
-        <Text style={styles.logo}>NEXORA</Text>
+        <Text style={styles.logo}>FX WALLET</Text>
         <Text style={styles.subtitle}>Welcome Back</Text>
       </View>
 

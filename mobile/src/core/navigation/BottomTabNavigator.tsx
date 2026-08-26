@@ -22,6 +22,10 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import PressableScale from '../../shared/components/animations/PressableScale';
 import Theme from '../../core/theme/theme';
 import GlassCard from '../../shared/components/Card/GlassCard';
+import {
+  preloadInterstitial,
+  showInterstitial,
+} from '../../shared/ads/adsService';
 
 const Tab = createBottomTabNavigator();
 
@@ -57,6 +61,20 @@ const CustomTabBar = ({
 }: BottomTabBarProps) => {
   const insets = useSafeAreaInsets();
 
+  const onTabPress = (index: number, routeName: string) => {
+    const isFocused = state.index === index;
+
+    if (!isFocused) {
+      showInterstitial();
+    }
+
+    navigation.emit({
+      type: 'tabPress',
+      target: routeName,
+      canPreventDefault: true,
+    });
+  };
+
   return (
     <View style={[styles.tabBarWrapper, {bottom: insets.bottom + 14}]}>
       <GlassCard style={styles.tabBarContainer}>
@@ -79,6 +97,7 @@ const CustomTabBar = ({
             });
 
             if (!isFocused && !event.defaultPrevented) {
+              onTabPress(index, route.name);
               navigation.navigate(route.name);
             }
           };
@@ -111,7 +130,7 @@ const CustomTabBar = ({
               <Ionicons
                 name={getIconName(route.name, isFocused)}
                 size={isFocused ? 23 : 22}
-                color={isFocused ? '#FFFFFF' : '#5A4632'}
+                color={isFocused ? '#FFFFFF' : '#94A3B8'}
               />
 
               <Text
@@ -180,21 +199,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(255,250,240,0.88)',
+    backgroundColor: 'rgba(15,25,50,0.88)',
     borderRadius: 24,
     borderWidth: 1,
-    borderColor: 'rgba(160,110,50,0.5)',
+    borderColor: 'rgba(59,130,246,0.45)',
     paddingHorizontal: 8,
     paddingVertical: 9,
 
     elevation: 14,
 
-    shadowColor: '#8A6A4B',
+    shadowColor: '#1E3A8A',
     shadowOffset: {
       width: 0,
       height: 6,
     },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.4,
     shadowRadius: 12,
   },
 
@@ -209,14 +228,13 @@ const styles = StyleSheet.create({
 
   activeTabButton: {
     flex: 1.35,
-    flexDirection: 'row',
     backgroundColor: Theme.colors.primary,
     paddingHorizontal: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.45)',
-    shadowColor: '#4A1803',
+    borderColor: 'rgba(96,165,250,0.55)',
+    shadowColor: '#1E3A8A',
     shadowOffset: {width: 0, height: 5},
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.5,
     shadowRadius: 10,
     elevation: 7,
   },
@@ -229,8 +247,6 @@ const styles = StyleSheet.create({
   },
 
   activeTabLabel: {
-    marginTop: 0,
-    marginLeft: 7,
     fontSize: 12,
     fontWeight: '700',
     color: '#FFFFFF',

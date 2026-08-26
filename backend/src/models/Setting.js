@@ -4,7 +4,7 @@ const settingSchema = new mongoose.Schema(
   {
     appName: {
       type: String,
-      default: "Nexora",
+      default: "FX Wallet",
     },
 
     logo: {

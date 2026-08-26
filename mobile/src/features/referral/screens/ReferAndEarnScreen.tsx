@@ -12,6 +12,7 @@ import {
 import Theme from '../../../core/theme/theme';
 import {getMyReferralSummary} from '../services/referralService';
 import PressableScale from '../../../shared/components/animations/PressableScale';
+import HoverWiggle from '../../../shared/components/animations/HoverWiggle';
 import GlassCard from '../../../shared/components/Card/GlassCard';
 
 const ReferAndEarnScreen = () => {
@@ -40,7 +41,7 @@ const ReferAndEarnScreen = () => {
   const handleShare = async () => {
     try {
       await Share.share({
-        message: `Join Nexora using my referral code ${referralCode} and start growing your wealth today!`,
+        message: `Join FX Wallet using my referral code ${referralCode} and start growing your wealth today!`,
       });
     } catch (error) {
       console.log('Share error:', error);
@@ -61,6 +62,7 @@ const ReferAndEarnScreen = () => {
       contentContainerStyle={styles.content}>
       <Text style={styles.title}>Refer &amp; Earn</Text>
 
+      <HoverWiggle>
       <GlassCard style={styles.codeCard}>
         <Text style={styles.codeLabel}>Your Referral Code</Text>
         <Text style={styles.codeValue}>{referralCode}</Text>
@@ -69,11 +71,14 @@ const ReferAndEarnScreen = () => {
           <Text style={styles.shareButtonText}>Share with Friends</Text>
         </PressableScale>
       </GlassCard>
+      </HoverWiggle>
 
+      <HoverWiggle>
       <GlassCard style={styles.earningsCard}>
         <Text style={styles.earningsLabel}>Total Earned</Text>
         <Text style={styles.earningsValue}>₹{totalEarned.toFixed(2)}</Text>
       </GlassCard>
+      </HoverWiggle>
 
       <Text style={styles.sectionTitle}>Your Referrals</Text>
 

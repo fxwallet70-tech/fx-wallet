@@ -14,6 +14,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import api from '../../../core/api/axios';
 import Theme from '../../../core/theme/theme';
 import PressableScale from '../../../shared/components/animations/PressableScale';
+import HoverWiggle from '../../../shared/components/animations/HoverWiggle';
 import GlassCard from '../../../shared/components/Card/GlassCard';
 
 interface Payment {
@@ -206,6 +207,7 @@ const PaymentHistoryScreen = () => {
           </View>
         }
         renderItem={({item}) => (
+          <HoverWiggle>
           <GlassCard style={styles.paymentCard}>
             <View style={styles.cardTopRow}>
               <View style={styles.planInfo}>
@@ -264,6 +266,7 @@ const PaymentHistoryScreen = () => {
               </View>
             ) : null}
           </GlassCard>
+          </HoverWiggle>
         )}
       />
     </View>

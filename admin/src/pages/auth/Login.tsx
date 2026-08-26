@@ -36,7 +36,7 @@ export default function Login() {
   return (
     <div className="login-page">
       <div className="login-card">
-        <h1>NEXORA</h1>
+        <h1>FX WALLET</h1>
 
         <p>Admin Panel</p>
 

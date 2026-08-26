@@ -20,8 +20,13 @@ import {SERVER_BASE_URL} from '../../../core/api/axios';
 import {getUsdtPayment} from '../services/usdtPaymentService';
 import {submitPaymentProof, getMyProofs} from '../services/paymentProofService';
 import PressableScale from '../../../shared/components/animations/PressableScale';
+import HoverWiggle from '../../../shared/components/animations/HoverWiggle';
 import GlassCard from '../../../shared/components/Card/GlassCard';
 import SupportSheet from '../../../shared/components/SupportSheet';
+import {
+  preloadRewardedVideo,
+  showRewardedVideo,
+} from '../../../shared/ads/adsService';
 
 const UsdtDepositScreen = () => {
   const [image, setImage] = useState<string | null>(null);
@@ -30,6 +35,7 @@ const UsdtDepositScreen = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   const [proofImageUri, setProofImageUri] = useState<string | null>(null);
+  const [accountName, setAccountName] = useState('');
   const [bankName, setBankName] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [ifscUpi, setIfscUpi] = useState('');
@@ -62,6 +68,7 @@ const UsdtDepositScreen = () => {
 
     load();
     loadMyProofs();
+    preloadRewardedVideo();
   }, []);
 
   const handlePickImage = async () => {
@@ -77,6 +84,10 @@ const UsdtDepositScreen = () => {
 
   const buildAccountDetails = () => {
     const lines: string[] = [];
+
+    if (accountName.trim()) {
+      lines.push(`Name: ${accountName.trim()}`);
+    }
 
     if (bankName.trim()) {
       lines.push(`Bank Name: ${bankName.trim()}`);
@@ -102,7 +113,7 @@ const UsdtDepositScreen = () => {
     if (!bankName.trim() && !accountNumber.trim() && !ifscUpi.trim()) {
       Alert.alert(
         'Validation',
-        'Please fill at least one account detail (Bank Name, Account Number, or IFSC / UPI ID).',
+        'Please fill at least one account detail (Name, Bank Name, Account Number, or IFSC / UPI ID).',
       );
       return;
     }
@@ -117,11 +128,13 @@ const UsdtDepositScreen = () => {
       );
 
       setProofImageUri(null);
+      setAccountName('');
       setBankName('');
       setAccountNumber('');
       setIfscUpi('');
       setIsDetailsOpen(false);
       loadMyProofs();
+      showRewardedVideo();
     } catch (error: any) {
       Alert.alert(
         'Error',
@@ -165,12 +178,15 @@ const UsdtDepositScreen = () => {
           )}
 
           {description ? (
+            <HoverWiggle>
             <GlassCard style={styles.descriptionCard}>
               <Text style={styles.descriptionText}>{description}</Text>
             </GlassCard>
+            </HoverWiggle>
           ) : null}
 
           {/* Share payment proof section */}
+          <HoverWiggle>
           <GlassCard style={styles.proofCard}>
             <Text style={styles.sectionTitle}>
               Share Payment Screenshot
@@ -208,6 +224,15 @@ const UsdtDepositScreen = () => {
 
             {isDetailsOpen ? (
               <View>
+                <Text style={styles.detailLabel}>Name</Text>
+                <TextInput
+                  style={styles.detailInput}
+                  placeholder="e.g. Rahul Sharma"
+                  placeholderTextColor={Theme.colors.grey}
+                  value={accountName}
+                  onChangeText={setAccountName}
+                />
+
                 <Text style={styles.detailLabel}>Bank Name</Text>
                 <TextInput
                   style={styles.detailInput}
@@ -248,8 +273,10 @@ const UsdtDepositScreen = () => {
               </Text>
             </PressableScale>
           </GlassCard>
+          </HoverWiggle>
 
           {myProofs.length > 0 ? (
+            <HoverWiggle>
             <GlassCard style={styles.historyCard}>
               <Text style={styles.sectionTitle}>
                 Your Submissions
@@ -286,13 +313,16 @@ const UsdtDepositScreen = () => {
                 </View>
               ))}
             </GlassCard>
+            </HoverWiggle>
           ) : null}
 
+          <HoverWiggle>
           <PressableScale
             style={styles.supportButton}
             onPress={() => setIsSupportOpen(true)}>
             <Text style={styles.supportText}>Customer Support</Text>
           </PressableScale>
+          </HoverWiggle>
         </>
       )}
 

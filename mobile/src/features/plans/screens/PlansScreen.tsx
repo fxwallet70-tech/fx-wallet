@@ -6,6 +6,8 @@ import React, {
 import {
   View,
   Text,
+  Image,
+  TextInput,
   StyleSheet,
   FlatList,
   ActivityIndicator,
@@ -20,16 +22,22 @@ import {
   useFocusEffect,
   useNavigation,
 } from '@react-navigation/native';
+import {launchImageLibrary} from 'react-native-image-picker';
 
 import Theme from '../../../core/theme/theme';
-import api from '../../../core/api/axios';
+import api, {SERVER_BASE_URL} from '../../../core/api/axios';
 import FadeInView from '../../../shared/components/animations/FadeInView';
 import PressableScale from '../../../shared/components/animations/PressableScale';
 import HoverWiggle from '../../../shared/components/animations/HoverWiggle';
 import GlassCard from '../../../shared/components/Card/GlassCard';
-import RazorpayCheckout from 'react-native-razorpay';
+import NativeAdCard from '../../../shared/components/Ads/NativeAdCard';
 import {purchaseUsingWallet} from '../services/planService';
 import {getWalletSummary} from '../../wallet/services/walletService';
+import {
+  getCdmSetting,
+  submitCdmRequest,
+  getMyCdmRequests,
+} from '../services/cdmService';
 
 interface Plan {
   _id: string;
@@ -50,59 +58,6 @@ interface PlansResponse {
   plans: Plan[];
 }
 
-interface CreateOrderResponse {
-  success: boolean;
-  message?: string;
-
-  keyId: string;
-
-  order: {
-    id: string;
-    amount: number;
-    currency: string;
-    receipt: string;
-  };
-
-  plan: {
-    id: string;
-    title: string;
-    price: number;
-    duration: number;
-  };
-
-  customer: {
-    name?: string;
-    email?: string;
-    contact?: string;
-  };
-}
-
-interface VerifyPaymentResponse {
-  success: boolean;
-  message?: string;
-  subscription?: {
-    _id: string;
-  };
-}
-
-interface RazorpaySuccessResponse {
-  razorpay_payment_id: string;
-  razorpay_order_id: string;
-  razorpay_signature: string;
-}
-
-interface RazorpayErrorResponse {
-  code?: number;
-  description?: string;
-  source?: string;
-  step?: string;
-  reason?: string;
-  metadata?: {
-    order_id?: string;
-    payment_id?: string;
-  };
-}
-
 const PlansScreen = () => {
   const navigation = useNavigation<any>();
 
@@ -120,9 +75,19 @@ const PlansScreen = () => {
     useState(0);
 
   const [paymentMethod, setPaymentMethod] =
-    useState<'wallet' | 'razorpay'>(
+    useState<'wallet' | 'cdm'>(
       'wallet',
     );
+
+  // CDM purchase state
+  const [cdmSetting, setCdmSetting] = useState<{
+    image?: string | null;
+    description?: string;
+  } | null>(null);
+  const [myCdmRequests, setMyCdmRequests] = useState<any[]>([]);
+  const [cdmImageUri, setCdmImageUri] = useState<string | null>(null);
+  const [cdmTransactionId, setCdmTransactionId] = useState('');
+  const [isCdmSubmitting, setIsCdmSubmitting] = useState(false);
 
   const [selectedPlan, setSelectedPlan] =
     useState<Plan | null>(null);
@@ -210,161 +175,80 @@ const PlansScreen = () => {
     loadWalletBalance();
   };
 
-  const activatePlan = async (plan: Plan) => {
+  const loadCdmContext = async () => {
     try {
-      setSelectedPlanId(plan._id);
+      const [settingRes, requestsRes] = await Promise.all([
+        getCdmSetting(),
+        getMyCdmRequests(),
+      ]);
 
-      /*
-       * Step 1:
-       * Create an order securely from the backend.
-       */
-      const orderResponse =
-        await api.post<CreateOrderResponse>(
-          '/payments/create-order',
-          {
-            planId: plan._id,
-          },
-        );
-
-      if (
-        !orderResponse.data.success ||
-        !orderResponse.data.order?.id
-      ) {
-        throw new Error(
-          orderResponse.data.message ||
-            'Unable to create payment order.',
-        );
-      }
-
-      const {keyId, order, customer} =
-        orderResponse.data;
-
-      /*
-       * Step 2:
-       * Open Razorpay Checkout.
-       *
-       * Amount is already returned in paise
-       * by the backend.
-       */
-      const options = {
-        key: keyId,
-        amount: String(order.amount),
-        currency: order.currency || 'INR',
-        name: 'Nexora',
-        description: `${plan.title} Plan`,
-        order_id: order.id,
-
-        prefill: {
-          name: customer?.name || '',
-          email: customer?.email || '',
-          contact: customer?.contact || '',
-        },
-
-        notes: {
-          planId: plan._id,
-          planTitle: plan.title,
-        },
-
-        theme: {
-          color: Theme.colors.primary,
-        },
-
-        retry: {
-          enabled: true,
-          max_count: 3,
-        },
-      };
-
-      const paymentResult =
-        (await RazorpayCheckout.open(
-          options,
-        )) as RazorpaySuccessResponse;
-
-      /*
-       * Step 3:
-       * Send Razorpay response to backend.
-       * Backend verifies the signature and only
-       * then activates the subscription.
-       */
-      const verifyResponse =
-        await api.post<VerifyPaymentResponse>(
-          '/payments/verify',
-          {
-            razorpay_order_id:
-              paymentResult.razorpay_order_id,
-
-            razorpay_payment_id:
-              paymentResult.razorpay_payment_id,
-
-            razorpay_signature:
-              paymentResult.razorpay_signature,
-          },
-        );
-
-      if (!verifyResponse.data.success) {
-        throw new Error(
-          verifyResponse.data.message ||
-            'Payment verification failed.',
-        );
-      }
-
-      Alert.alert(
-        'Payment Successful',
-        verifyResponse.data.message ||
-          'Your plan has been activated successfully.',
-        [
-          {
-            text: 'Open Dashboard',
-            onPress: () =>
-              navigation.navigate('Home'),
-          },
-        ],
-      );
-    } catch (error: any) {
-      console.log(
-        'Razorpay payment error:',
-        error,
-      );
-
-      /*
-       * Axios/backend error
-       */
-      if (error.response?.data?.message) {
-        Alert.alert(
-          'Payment Failed',
-          error.response.data.message,
-        );
-
-        return;
-      }
-
-      /*
-       * Razorpay Checkout error
-       */
-      const razorpayError =
-        error as RazorpayErrorResponse;
-
-      if (razorpayError.description) {
-        Alert.alert(
-          'Payment Not Completed',
-          razorpayError.description,
-        );
-
-        return;
-      }
-
-      /*
-       * Local JavaScript error
-       */
-      Alert.alert(
-        'Payment Failed',
-        error.message ||
-          'Unable to complete the payment.',
-      );
-    } finally {
-      setSelectedPlanId(null);
+      setCdmSetting(settingRes.data || null);
+      setMyCdmRequests(requestsRes.proofs || []);
+      setCdmImageUri(null);
+      setCdmTransactionId('');
+    } catch (error) {
+      console.log('Load CDM context error:', error);
     }
   };
+
+  const handlePickCdmImage = async () => {
+    const result = await launchImageLibrary({
+      mediaType: 'photo',
+      quality: 0.7,
+    });
+
+    if (result.assets && result.assets.length > 0) {
+      setCdmImageUri(result.assets[0].uri || null);
+    }
+  };
+
+  const handleSubmitCdm = async (plan: Plan) => {
+    if (!cdmImageUri) {
+      Alert.alert('Validation', 'Please select your CDM receipt screenshot.');
+      return;
+    }
+
+    const accountDetails = `Plan: ${plan.title}\nDeposit Reference: ${buildCdmReference(plan)}\nAmount: Rs. ${Number(plan.price || 0).toFixed(2)}`;
+
+    try {
+      setIsCdmSubmitting(true);
+      await submitCdmRequest(
+        plan._id,
+        cdmImageUri,
+        accountDetails,
+        cdmTransactionId.trim(),
+      );
+
+      Alert.alert(
+        'Submitted!',
+        'Your CDM payment is submitted. Our team will review your receipt and activate your plan once approved.',
+      );
+
+      setPaymentModalVisible(false);
+      await loadCdmContext();
+    } catch (error: any) {
+      console.log('CDM submit error:', error);
+      Alert.alert(
+        'Submission Failed',
+        error.response?.data?.message || 'Unable to submit your CDM payment. Please try again.',
+      );
+    } finally {
+      setIsCdmSubmitting(false);
+    }
+  };
+
+  const buildCdmReference = (plan: Plan) =>
+    `CDM-${plan._id.slice(-6)}-${Date.now().toString().slice(-6)}`;
+
+  const pendingCdmForPlan = (plan: Plan) =>
+    myCdmRequests.find(
+      (r: any) =>
+        r.plan?._id === plan._id &&
+        r.status === 'pending',
+    );
+
+  const isWalletDisabled = (plan: Plan) =>
+    walletBalance < (plan.price || 0);
 
   const purchaseWithWallet = async (
     plan: Plan,
@@ -423,14 +307,15 @@ const PlansScreen = () => {
     setPaymentMethod(
       walletBalance >= (plan.price || 0)
         ? 'wallet'
-        : 'razorpay',
+        : 'cdm',
     );
 
+    loadCdmContext();
     setPaymentModalVisible(true);
   };
 
   const closePaymentModal = () => {
-    if (isProcessingPayment) {
+    if (isProcessingPayment || isCdmSubmitting) {
       return;
     }
 
@@ -443,28 +328,19 @@ const PlansScreen = () => {
       return;
     }
 
-    if (paymentMethod === 'wallet') {
-      if (
-        walletBalance <
-        (selectedPlan.price || 0)
-      ) {
-        Alert.alert(
-          'Insufficient Balance',
-          'Your wallet balance is not enough for this plan. Please choose Razorpay instead.',
-        );
+    if (
+      walletBalance <
+      (selectedPlan.price || 0)
+    ) {
+      Alert.alert(
+        'Insufficient Balance',
+        'Your wallet balance is not enough for this plan. Please choose CDM payment instead.',
+      );
 
-        return;
-      }
-
-      purchaseWithWallet(selectedPlan);
-    } else {
-      const plan = selectedPlan;
-
-      setPaymentModalVisible(false);
-      setSelectedPlan(null);
-
-      activatePlan(plan);
+      return;
     }
+
+    purchaseWithWallet(selectedPlan);
   };
 
   const renderPlan = ({
@@ -625,6 +501,8 @@ const PlansScreen = () => {
               Select the plan that works best
               for you.
             </Text>
+
+            <NativeAdCard />
           </View>
         }
         ListEmptyComponent={
@@ -764,23 +642,21 @@ const PlansScreen = () => {
                   style={[
                     styles.optionRow,
                     paymentMethod ===
-                      'razorpay' &&
+                      'cdm' &&
                       styles.optionRowSelected,
                   ]}
                   onPress={() =>
-                    setPaymentMethod(
-                      'razorpay',
-                    )
+                    setPaymentMethod('cdm')
                   }>
                   <View
                     style={[
                       styles.radioOuter,
                       paymentMethod ===
-                        'razorpay' &&
+                        'cdm' &&
                         styles.radioOuterSelected,
                     ]}>
                     {paymentMethod ===
-                      'razorpay' && (
+                      'cdm' && (
                       <View
                         style={
                           styles.radioInner
@@ -797,43 +673,127 @@ const PlansScreen = () => {
                       style={
                         styles.optionLabel
                       }>
-                      Razorpay
+                      Cash Deposit (CDM)
                     </Text>
 
                     <Text
                       style={
                         styles.optionSubLabel
                       }>
-                      Card / UPI / Netbanking
+                      Upload receipt · admin approves
                     </Text>
                   </View>
                 </PressableScale>
               </View>
 
-              <PressableScale
-                disabled={
-                  isProcessingPayment
-                }
-                style={[
-                  styles.continueButton,
-                  isProcessingPayment &&
-                    styles.disabledButton,
-                ]}
-                onPress={handleContinue}>
-                {isProcessingPayment ? (
-                  <ActivityIndicator
-                    size="small"
-                    color="#FFFFFF"
-                  />
-                ) : (
-                  <Text
-                    style={
-                      styles.continueButtonText
-                    }>
-                    Continue
-                  </Text>
-                )}
-              </PressableScale>
+              {paymentMethod === 'wallet' ? (
+                <PressableScale
+                  disabled={isProcessingPayment}
+                  style={[
+                    styles.continueButton,
+                    isProcessingPayment &&
+                      styles.disabledButton,
+                  ]}
+                  onPress={handleContinue}>
+                  {isProcessingPayment ? (
+                    <ActivityIndicator
+                      size="small"
+                      color="#FFFFFF"
+                    />
+                  ) : (
+                    <Text
+                      style={
+                        styles.continueButtonText
+                      }>
+                      Pay with Wallet
+                    </Text>
+                  )}
+                </PressableScale>
+              ) : (
+                selectedPlan && (
+                  <View style={styles.cdmPanel}>
+                    <Text style={styles.cdmSectionTitle}>
+                      Pay via Cash Deposit
+                    </Text>
+
+                    <Text style={styles.cdmInstruction}>
+                      Deposit the exact amount shown above using CDM, then
+                      upload your receipt screenshot. Our team will review and
+                      activate your plan.
+                    </Text>
+
+                    <Text style={styles.cdmReference}>
+                      Deposit Reference: {buildCdmReference(selectedPlan)}
+                    </Text>
+
+                    {cdmSetting?.description ? (
+                      <Text style={styles.cdmSettingText}>
+                        {cdmSetting.description}
+                      </Text>
+                    ) : null}
+
+                    {cdmSetting?.image ? (
+                      <Image
+                        source={{uri: `${SERVER_BASE_URL}${cdmSetting.image}`}}
+                        style={styles.cdmSettingImage}
+                        resizeMode="contain"
+                      />
+                    ) : null}
+
+                    <TextInput
+                      style={styles.cdmInput}
+                      placeholder="Transaction ID / UTR (optional)"
+                      placeholderTextColor={Theme.colors.grey}
+                      value={cdmTransactionId}
+                      onChangeText={setCdmTransactionId}
+                    />
+
+                    <PressableScale
+                      onPress={handlePickCdmImage}>
+                      <View style={styles.cdmPickButton}>
+                        <Text style={styles.cdmPickText}>
+                          {cdmImageUri
+                            ? 'Change Receipt Screenshot'
+                            : 'Choose Receipt Screenshot'}
+                        </Text>
+                      </View>
+                    </PressableScale>
+
+                    {cdmImageUri ? (
+                      <Image
+                        source={{uri: cdmImageUri}}
+                        style={styles.cdmPreview}
+                        resizeMode="cover"
+                      />
+                    ) : null}
+
+                    <PressableScale
+                      disabled={isCdmSubmitting}
+                      style={[
+                        styles.continueButton,
+                        isCdmSubmitting &&
+                          styles.disabledButton,
+                      ]}
+                      onPress={() =>
+                        handleSubmitCdm(selectedPlan)
+                      }>
+                      {isCdmSubmitting ? (
+                        <ActivityIndicator
+                          size="small"
+                          color="#FFFFFF"
+                        />
+                      ) : (
+                        <Text
+                          style={
+                            styles.continueButtonText
+                          }>
+                          Submit for Approval
+                        </Text>
+                      )}
+                    </PressableScale>
+                  </View>
+                )
+              )}
 
               <PressableScale
                 disabled={
@@ -1173,13 +1133,15 @@ const styles = StyleSheet.create({
   },
 
   optionLabel: {
-    color: Theme.colors.text,
+    // Option rows have a light/cream background, so we need dark text
+    // to be visible (near-white text was invisible on the light row).
+    color: '#111827',
     fontSize: 15,
     fontWeight: '700',
   },
 
   optionSubLabel: {
-    color: Theme.colors.onLightGrey,
+    color: '#4B5563',
     fontSize: 12,
     marginTop: 2,
   },
@@ -1210,6 +1172,81 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '800',
+  },
+
+  cdmPanel: {
+    marginTop: 4,
+  },
+
+  cdmSectionTitle: {
+    color: Theme.colors.text,
+    fontSize: 16,
+    fontWeight: '800',
+    marginBottom: 6,
+  },
+
+  cdmInstruction: {
+    color: Theme.colors.grey,
+    fontSize: 13,
+    lineHeight: 19,
+    marginBottom: 10,
+  },
+
+  cdmReference: {
+    color: Theme.colors.primary,
+    fontSize: 13,
+    fontWeight: '700',
+    marginBottom: 10,
+  },
+
+  cdmSettingText: {
+    color: Theme.colors.text,
+    fontSize: 13,
+    lineHeight: 19,
+    marginBottom: 10,
+  },
+
+  cdmSettingImage: {
+    width: '100%',
+    height: 160,
+    borderRadius: 12,
+    backgroundColor: Theme.colors.inputBg,
+    marginBottom: 12,
+  },
+
+  cdmInput: {
+    backgroundColor: Theme.colors.inputBg,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Theme.colors.hairline,
+    paddingHorizontal: 14,
+    height: 48,
+    marginBottom: 12,
+    color: Theme.colors.text,
+    fontSize: 14,
+  },
+
+  cdmPickButton: {
+    borderRadius: 12,
+    paddingVertical: 13,
+    alignItems: 'center',
+    marginBottom: 12,
+    borderWidth: 1.5,
+    borderColor: 'rgba(110,66,22,0.85)',
+    backgroundColor: 'rgba(255,250,240,0.35)',
+  },
+
+  cdmPickText: {
+    color: Theme.colors.text,
+    fontWeight: '700',
+    fontSize: 14,
+  },
+
+  cdmPreview: {
+    width: '100%',
+    height: 180,
+    borderRadius: 12,
+    marginBottom: 12,
   },
 
   cancelButton: {

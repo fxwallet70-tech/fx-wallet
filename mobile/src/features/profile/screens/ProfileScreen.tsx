@@ -30,6 +30,7 @@ import {
   UserProfile,
 } from '../services/profileService';
 import PressableScale from '../../../shared/components/animations/PressableScale';
+import HoverWiggle from '../../../shared/components/animations/HoverWiggle';
 import GlassCard from '../../../shared/components/Card/GlassCard';
 import SupportSheet from '../../../shared/components/SupportSheet';
 import AppConstants from '../../../shared/constants/app';
@@ -337,6 +338,7 @@ const handleLogout = () => {
         Manage your personal information.
       </Text>
 
+      <HoverWiggle>
       <GlassCard style={styles.card}>
         <Text style={styles.label}>
           Full Name
@@ -418,6 +420,7 @@ const handleLogout = () => {
           )}
         </Text>
       </GlassCard>
+      </HoverWiggle>
 
       {isEditing ? (
         <View style={styles.buttonRow}>
@@ -457,6 +460,7 @@ const handleLogout = () => {
           </PressableScale>
         </View>
       ) : (
+        <HoverWiggle>
         <PressableScale
           style={styles.editButton}
           onPress={handleEdit}>
@@ -467,9 +471,11 @@ const handleLogout = () => {
             Edit Profile
           </Text>
         </PressableScale>
+        </HoverWiggle>
       )}
       {!isEditing ? (
         <>
+         <HoverWiggle>
          <PressableScale
          style={styles.changePasswordButton}
          onPress={() =>
@@ -485,6 +491,8 @@ const handleLogout = () => {
                 </Text>
                 
          </PressableScale>
+         </HoverWiggle>
+         <HoverWiggle>
          <PressableScale
          style={styles.changePasswordButton}
          onPress={() =>
@@ -499,7 +507,9 @@ const handleLogout = () => {
                 Refer & Earn
                 </Text>
          </PressableScale>
+         </HoverWiggle>
          
+         <HoverWiggle>
          <PressableScale
          style={styles.supportButton}
          onPress={() =>
@@ -509,7 +519,9 @@ const handleLogout = () => {
                 Customer Support
                 </Text>
          </PressableScale>
+         </HoverWiggle>
          
+         <HoverWiggle>
          <PressableScale
          style={styles.logoutButton}
          onPress={handleLogout}>
@@ -517,6 +529,7 @@ const handleLogout = () => {
             Logout
             </Text>
             </PressableScale>
+            </HoverWiggle>
             </>
           ) : null}
 
@@ -654,8 +667,7 @@ const styles = StyleSheet.create({
   marginTop: 12,
 
   
-},
-supportButton: {
+},  supportButton: {
     backgroundColor: Theme.colors.card,
     borderWidth: 1,
     borderColor: Theme.colors.glassBorder,

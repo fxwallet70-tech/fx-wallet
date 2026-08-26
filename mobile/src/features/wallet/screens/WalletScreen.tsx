@@ -27,6 +27,7 @@ import {
   WalletTransaction,
 } from '../services/walletService';
 import PressableScale from '../../../shared/components/animations/PressableScale';
+import HoverWiggle from '../../../shared/components/animations/HoverWiggle';
 import GlassCard from '../../../shared/components/Card/GlassCard';
 
 const emptySummary: WalletSummary = {
@@ -204,6 +205,7 @@ const WalletScreen = () => {
       'MaturityReturn';
 
     return (
+      <HoverWiggle>
       <GlassCard style={styles.transactionCard}>
         <View
           style={[
@@ -261,6 +263,7 @@ const WalletScreen = () => {
           {formatCurrency(item.amount)}
         </Text>
       </GlassCard>
+      </HoverWiggle>
     );
   };
 
@@ -339,6 +342,7 @@ const WalletScreen = () => {
               and recent wallet activity.
             </Text>
 
+            <HoverWiggle>
             <View style={styles.balanceCard}>
               <Text style={styles.balanceLabel}>
                 Available Balance
@@ -354,7 +358,9 @@ const WalletScreen = () => {
                 Available for plan purchases
               </Text>
             </View>
+            </HoverWiggle>
 
+            <HoverWiggle>
             <GlassCard style={styles.returnCard}>
               <View style={styles.returnHeader}>
                 <View>
@@ -383,9 +389,12 @@ const WalletScreen = () => {
                 eligible subscriptions mature.
               </Text>
             </GlassCard>
+            </HoverWiggle>
 
             <View style={styles.statsGrid}>
-              <GlassCard style={styles.statCard}>
+              <View style={styles.statWrap}>
+              <HoverWiggle style={styles.statHover}>
+              <GlassCard style={styles.statInner}>
                 <Text style={styles.statLabel}>
                   Total Credit
                 </Text>
@@ -400,8 +409,12 @@ const WalletScreen = () => {
                   )}
                 </Text>
               </GlassCard>
+              </HoverWiggle>
+              </View>
 
-              <GlassCard style={styles.statCard}>
+              <View style={styles.statWrap}>
+              <HoverWiggle style={styles.statHover}>
+              <GlassCard style={styles.statInner}>
                 <Text style={styles.statLabel}>
                   Total Debit
                 </Text>
@@ -416,8 +429,12 @@ const WalletScreen = () => {
                   )}
                 </Text>
               </GlassCard>
+              </HoverWiggle>
+              </View>
 
-              <GlassCard style={styles.statCard}>
+              <View style={styles.statWrap}>
+              <HoverWiggle style={styles.statHover}>
+              <GlassCard style={styles.statInner}>
                 <Text style={styles.statLabel}>
                   Today's Credit
                 </Text>
@@ -432,8 +449,12 @@ const WalletScreen = () => {
                   )}
                 </Text>
               </GlassCard>
+              </HoverWiggle>
+              </View>
 
-              <GlassCard style={styles.statCard}>
+              <View style={styles.statWrap}>
+              <HoverWiggle style={styles.statHover}>
+              <GlassCard style={styles.statInner}>
                 <Text style={styles.statLabel}>
                   Today's Debit
                 </Text>
@@ -448,8 +469,11 @@ const WalletScreen = () => {
                   )}
                 </Text>
               </GlassCard>
+              </HoverWiggle>
+              </View>
             </View>
 
+            <HoverWiggle>
             <GlassCard style={styles.maturityCard}>
               <Text style={styles.maturityLabel}>
                 Total Returns Received
@@ -461,7 +485,9 @@ const WalletScreen = () => {
                 )}
               </Text>
             </GlassCard>
+            </HoverWiggle>
 
+            <HoverWiggle>
             <PressableScale
               style={styles.paymentHistoryButton}
               onPress={() =>
@@ -483,6 +509,7 @@ const WalletScreen = () => {
                 ›
               </Text>
             </PressableScale>
+            </HoverWiggle>
                
 
             <Text style={styles.sectionTitle}>
@@ -553,12 +580,15 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 22,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+    borderColor: 'rgba(255,255,255,0.35)',
     shadowColor: Theme.colors.accentShadow,
     shadowOffset: {width: 0, height: 10},
     shadowOpacity: 0.35,
     shadowRadius: 16,
-    elevation: 8,
+    // Cross-platform blue glow around the card
+    boxShadow:
+      '0px 0px 24px 3px rgba(59,130,246,0.55), 0px 10px 26px rgba(30,58,138,0.5)',
+    elevation: 10,
   },
 
   balanceLabel: {
@@ -600,7 +630,7 @@ const styles = StyleSheet.create({
   },
 
   returnAmount: {
-    color: Theme.colors.primary,
+    color: '#7EA6F8',
     fontSize: 27,
     fontWeight: '800',
     marginTop: 5,
@@ -633,6 +663,25 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
 
+  statWrap: {
+    width: '48%',
+    marginBottom: 12,
+  },
+
+  statHover: {
+    width: '100%',
+  },
+
+  statInner: {
+    width: '100%',
+    backgroundColor: Theme.colors.card,
+    borderRadius: 15,
+    padding: 15,
+    borderWidth: 1.5,
+    borderColor: Theme.colors.glassBorder,
+    ...Theme.shadows.card,
+  },
+
   statCard: {
     width: '48%',
     backgroundColor: Theme.colors.card,
@@ -656,16 +705,18 @@ const styles = StyleSheet.create({
   },
 
   maturityCard: {
-    backgroundColor: 'rgba(22,163,74,0.12)',
+    backgroundColor: 'rgba(22,163,74,0.14)',
     borderRadius: 16,
     padding: 17,
     marginTop: 2,
     borderWidth: 1,
-    borderColor: 'rgba(22,163,74,0.25)',
+    borderColor: 'rgba(34,197,94,0.4)',
+    boxShadow: '0px 0px 18px 2px rgba(34,197,94,0.30)',
+    elevation: 6,
   },
 
   maturityLabel: {
-    color: '#166534',
+    color: '#86EFAC',
     fontSize: 13,
   },
 

@@ -21,7 +21,7 @@ async function resetAdmin() {
       {email: 'admin@nexora.com'},
       {
         $set: {
-          fullName: 'Nexora Admin',
+          fullName: 'FX Wallet Admin',
           email: 'admin@nexora.com',
           password: hashedPassword,
           role: 'admin',

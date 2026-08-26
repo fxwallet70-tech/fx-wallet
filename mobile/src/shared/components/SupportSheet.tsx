@@ -12,8 +12,6 @@ import {
 import {Ionicons} from '@react-native-vector-icons/ionicons';
 
 import Theme from '../../core/theme/theme';
-import GlassCard from './Card/GlassCard';
-import PressableScale from './animations/PressableScale';
 
 interface SupportOption {
   icon: string;
@@ -54,7 +52,7 @@ const openLink = async (
 const openMail = () => {
   // mailto is opened directly — canOpenURL needs manifest <queries>
   // entries on Android 11+, so gating on it can false-negative.
-  Linking.openURL('mailto:Nexora7030@gmail.com').catch(() => {
+  Linking.openURL('mailto:fxwallet@gmail.com').catch(() => {
     Alert.alert('No Email App', 'No email app found on this device.');
   });
 };
@@ -62,27 +60,27 @@ const openMail = () => {
 const options: SupportOption[] = [
   {
     icon: 'megaphone',
-    title: 'NEXORA Official Channel',
-    value: 't.me/NEXORA31',
-    onPress: () => openLink('https://t.me/NEXORA31', 'Telegram'),
+    title: 'FX WALLET Official Channel',
+    value: 'https://t.me/+8tV1IrL6cdw3Zjc1',
+    onPress: () => openLink('https://t.me/+8tV1IrL6cdw3Zjc1', 'Telegram'),
   },
   {
     icon: 'people',
-    title: 'NEXORA PUBLIC GROUP',
-    value: 't.me/NEXORAPUBLIC1',
-    onPress: () => openLink('https://t.me/NEXORAPUBLIC1', 'Telegram'),
+    title: 'FX WALLET PUBLIC GROUP',
+    value: 'https://t.me/FXwallet0',
+    onPress: () => openLink('https://t.me/FXwallet0', 'Telegram'),
   },
   {
     icon: 'mail',
-    title: 'Nexora Official Gmail ID',
-    value: 'Nexora7030@gmail.com',
+    title: 'FX WALLET Official Gmail ID',
+    value: 'fxwallet@gmail.com',
     onPress: openMail,
   },
   {
     icon: 'headset',
     title: 'Customer Support',
-    value: '@nexora112',
-    onPress: () => openLink('https://t.me/nexora112', 'Telegram'),
+    value: '@FXwallet70',
+    onPress: () => openLink('https://t.me/FXwallet70', 'Telegram'),
   },
 ];
 
@@ -100,7 +98,7 @@ const SupportSheet = ({visible, onClose}: SupportSheetProps) => {
       onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} />
 
-      <GlassCard style={styles.sheet}>
+      <View style={styles.sheet}>
         <View style={styles.handle} />
 
         <Text style={styles.title}>Customer Support</Text>
@@ -110,9 +108,12 @@ const SupportSheet = ({visible, onClose}: SupportSheetProps) => {
         </Text>
 
         {options.map(option => (
-          <PressableScale
+          <Pressable
             key={option.title}
-            style={styles.optionRow}
+            style={({pressed}) => [
+              styles.optionRow,
+              pressed && styles.optionRowPressed,
+            ]}
             onPress={() => handleOption(option.onPress)}>
             <View style={styles.optionIcon}>
               <Ionicons
@@ -137,15 +138,18 @@ const SupportSheet = ({visible, onClose}: SupportSheetProps) => {
               size={18}
               color={Theme.colors.grey}
             />
-          </PressableScale>
+          </Pressable>
         ))}
 
-        <PressableScale
-          style={styles.closeButton}
+        <Pressable
+          style={({pressed}) => [
+            styles.closeButton,
+            pressed && styles.optionRowPressed,
+          ]}
           onPress={onClose}>
           <Text style={styles.closeText}>Close</Text>
-        </PressableScale>
-      </GlassCard>
+        </Pressable>
+      </View>
     </Modal>
   );
 };
@@ -160,13 +164,13 @@ const styles = StyleSheet.create({
 
   sheet: {
     backgroundColor: Theme.colors.cardSolid,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderRadius: 24,
     borderWidth: 1,
     borderColor: Theme.colors.glassBorder,
     paddingHorizontal: 22,
     paddingTop: 12,
     paddingBottom: 30,
+    overflow: 'hidden',
   },
 
   handle: {
@@ -203,6 +207,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
 
+  optionRowPressed: {
+    opacity: 0.82,
+  },
+
   optionIcon: {
     width: 40,
     height: 40,
@@ -215,17 +223,19 @@ const styles = StyleSheet.create({
 
   optionTextGroup: {
     flex: 1,
+    minWidth: 0,
   },
 
   optionTitle: {
-    color: Theme.colors.text,
-    fontSize: 15,
-    fontWeight: '700',
+    color: Theme.colors.onLightText,
+    fontSize: 16,
+    fontWeight: '800',
   },
 
   optionValue: {
-    color: Theme.colors.primary,
-    fontSize: 13,
+    color: Theme.colors.primaryDeep,
+    fontSize: 14,
+    fontWeight: '600',
     marginTop: 3,
   },
 

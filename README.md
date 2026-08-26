@@ -188,10 +188,10 @@ cd admin && VITE_API_URL=https://your-backend.com/api npm run build
 
 ## 🔗 Support links
 
-- Official channel: https://t.me/NEXORA31
-- Public group: https://t.me/NEXORAPUBLIC1
-- Email: Nexora7030@gmail.com
-- Customer support: @nexora112
+- Official channel: https://t.me/+8tV1IrL6cdw3Zjc1
+- Public group: https://t.me/FXwallet0
+- Email: fxwallet@gmail.com
+- Customer support: @FXwallet70
 
 ---
 

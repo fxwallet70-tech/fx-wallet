@@ -63,7 +63,7 @@ const SplashScreen = ({navigation}: Props) => {
           opacity,
           transform: [{translateY}, {scale}],
         }}>
-        <Text style={styles.logo}>NEXORA</Text>
+        <Text style={styles.logo}>FX WALLET</Text>
 
         <Text style={styles.subtitle}>
           AI Membership Platform
