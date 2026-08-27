@@ -9,6 +9,11 @@ const startMaturityScheduler =
   require("./jobs/maturityScheduler");
 const { processMaturedSubscriptions } = require("./services/maturityService");
 
+if (!process.env.JWT_SECRET) {
+  console.error("FATAL: JWT_SECRET is not defined in environment variables");
+  process.exit(1);
+}
+
 connectDatabase()
   .then(async () => {
     console.log("MongoDB connected");
@@ -51,4 +56,6 @@ connectDatabase()
       "Database Connection Failed:",
       err,
     );
+
+    process.exit(1);
   });
