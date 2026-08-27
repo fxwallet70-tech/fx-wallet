@@ -10,7 +10,7 @@ Nexora is a full-stack investment platform where users choose plans, invest, and
 
 | Project | Stack | Description |
 |---|---|---|
-| `backend` | Node.js · Express · MongoDB | REST API, JWT auth, Razorpay & USDT payments, maturity scheduler, Twilio OTP |
+| `backend` | Node.js · Express · MongoDB | REST API, JWT auth, USDT payments, maturity scheduler |
 | `web` | React · Vite · TypeScript | Customer-facing web app (plans, wallet, deposits, referrals) |
 | `admin` | React · Vite · TypeScript · MUI | Admin panel (users, plans, wallets, returns, payment proofs) |
 | `mobile` | React Native | Android/iOS app with the same customer features |
@@ -36,8 +36,8 @@ nexroprojected/
 - **Node.js 20+** and npm
 - **MongoDB** — local install or [MongoDB Atlas](https://www.mongodb.com/atlas) (free M0 cluster)
 - **Android Studio / Xcode** — only required to run the mobile app
-- **Razorpay account** — only for live payment gateway (optional in development)
-- **Twilio account** — only if `OTP_VERIFICATION_ENABLED=true` (optional in development)
+- **Razorpay account** — removed from backend
+
 
 ---
 
@@ -61,12 +61,6 @@ npm start                # production
 | `PORT` | optional | Server port (default `5000`) |
 | `MONGODB_URI` | **yes** | MongoDB connection string |
 | `JWT_SECRET` | **yes** | Secret used to sign auth tokens |
-| `RAZORPAY_KEY_ID` | optional | Razorpay key ID (payments) |
-| `RAZORPAY_KEY_SECRET` | optional | Razorpay key secret |
-| `TWILIO_ACCOUNT_SID` | optional | Twilio account SID (OTP) |
-| `TWILIO_AUTH_TOKEN` | optional | Twilio auth token |
-| `TWILIO_VERIFY_SERVICE_SID` | optional | Twilio Verify service SID |
-| `OTP_VERIFICATION_ENABLED` | optional | `true` to require phone OTP at registration |
 
 ### Default admin
 

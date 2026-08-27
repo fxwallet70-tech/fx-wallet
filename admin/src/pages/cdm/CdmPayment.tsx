@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import AdminLayout from '../../layouts/AdminLayout';
 import { getCdmSetting, updateCdmSetting } from '../../services/cdmService';
 
-const API_BASE = 'https://p01--nexora-backend--zlfp84xgf8wz.code.run';
+const API_BASE = 'https://site--fx-wallet--y5mbl8ygpzzy.code.run';
 
 export default function CdmPayment() {
   const [currentImage, setCurrentImage] = useState<string | null>(null);

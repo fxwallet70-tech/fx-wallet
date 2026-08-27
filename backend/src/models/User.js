@@ -58,6 +58,16 @@ const userSchema = new mongoose.Schema(
       sparse: true,
     },
 
+    resetCode: {
+      type: String,
+      default: null,
+    },
+
+    resetCodeExpiresAt: {
+      type: Date,
+      default: null,
+    },
+
     referredBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

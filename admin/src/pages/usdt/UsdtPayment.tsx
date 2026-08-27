@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import AdminLayout from '../../layouts/AdminLayout';
 import { getUsdtPayment, updateUsdtPayment } from '../../services/usdtPaymentService';
 
-const API_BASE = 'https://p01--nexora-backend--zlfp84xgf8wz.code.run';
+const API_BASE = 'https://site--fx-wallet--y5mbl8ygpzzy.code.run';
 
 export default function UsdtPayment() {
   const [currentImage, setCurrentImage] = useState<string | null>(null);
