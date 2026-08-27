@@ -6,7 +6,7 @@ const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === "true";
 const DEMO_USER = {
   id: "demo-user-123",
   fullName: "Demo User",
-  email: "demo@nexora.com",
+  email: "demo@fxwallet.com",
   mobile: "9876543210",
   walletBalance: 25000,
   isActive: true,

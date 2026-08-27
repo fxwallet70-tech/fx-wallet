@@ -32,8 +32,8 @@ const CustomButton = ({title, onPress}: Props) => {
       onPressIn={() => animateTo(0.96)}
       onPressOut={() => animateTo(1)}>
       <Animated.View
-        style={[styles.button, {transform: [{scale}]}]}>
-        <Text style={styles.text}>{title}</Text>
+    style={[styles.button, {transform: [{scale}]}]}>
+    <Text style={styles.text}>{title}</Text>
       </Animated.View>
     </TouchableOpacity>
   );
@@ -49,13 +49,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.45)',
-    shadowColor: Theme.colors.accentShadow,
-    shadowOffset: {width: 0, height: 8},
-    shadowOpacity: 0.4,
-    shadowRadius: 14,
-    boxShadow: '0px 8px 20px rgba(29,78,216,0.6), 0px 0px 16px rgba(96,165,250,0.4)',
-    elevation: 9,
+    borderColor: Theme.colors.border,
+    // Neutral depth shadow only (glow removed)
+    shadowColor: '#000000',
+    shadowOffset: {width: 0, height: 6},
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    boxShadow: '0px 6px 18px rgba(0,0,0,0.35)',
+    elevation: 4,
   },
 
   text: {

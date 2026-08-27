@@ -212,19 +212,19 @@ export default function PaymentProof() {
           <div
             onClick={() => fileInputRef.current?.click()}
             style={{
-              border: "2px dashed #334155",
+              border: "2px dashed rgba(255, 255, 255, 0.18)",
               borderRadius: 12,
               padding: preview ? 12 : 32,
               textAlign: "center",
               cursor: "pointer",
               transition: "border-color 0.2s, background 0.2s",
-              background: preview ? "#0f172a" : "transparent",
+              background: preview ? "#0F1210" : "transparent",
             }}
             onMouseEnter={(e) => {
-              if (!preview) e.currentTarget.style.borderColor = "#2563eb";
+              if (!preview) e.currentTarget.style.borderColor = "#8B2635";
             }}
             onMouseLeave={(e) => {
-              if (!preview) e.currentTarget.style.borderColor = "#334155";
+              if (!preview) e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.18)";
             }}
           >
             {preview ? (
@@ -260,7 +260,7 @@ export default function PaymentProof() {
                     width: 48,
                     height: 48,
                     borderRadius: 24,
-                    background: "#1e293b",
+                    background: "#181E1B",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -272,7 +272,7 @@ export default function PaymentProof() {
                 <p style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, margin: "0 0 4px" }}>
                   Click to upload screenshot
                 </p>
-                <p style={{ color: "#64748b", fontSize: 12, margin: 0 }}>
+                <p style={{ color: "rgba(255, 255, 255, 0.18)", fontSize: 12, margin: 0 }}>
                   JPEG, PNG, or WebP · Max 5MB
                 </p>
               </>
@@ -306,12 +306,12 @@ export default function PaymentProof() {
               marginTop: 6,
             }}
           >
-            <span style={{ color: "#64748b", fontSize: 12 }}>
+            <span style={{ color: "rgba(255, 255, 255, 0.18)", fontSize: 12 }}>
               Provide as much detail as possible for faster verification
             </span>
             <span
               style={{
-                color: accountDetails.length > 500 ? "#fca5a5" : "#64748b",
+                color: accountDetails.length > 500 ? "#fca5a5" : "rgba(255, 255, 255, 0.18)",
                 fontSize: 12,
               }}
             >
@@ -375,7 +375,7 @@ export default function PaymentProof() {
                 marginBottom: 12,
                 cursor: "pointer",
                 transition: "border-color 0.2s",
-                borderColor: selectedProof?._id === proof._id ? "#2563eb" : undefined,
+                borderColor: selectedProof?._id === proof._id ? "#8B2635" : undefined,
               }}
               onClick={() =>
                 setSelectedProof(selectedProof?._id === proof._id ? null : proof)
@@ -394,7 +394,7 @@ export default function PaymentProof() {
                       width: 40,
                       height: 40,
                       borderRadius: 10,
-                      background: "#0f172a",
+                      background: "#0F1210",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -420,7 +420,7 @@ export default function PaymentProof() {
                     <div style={{ color: "#fff", fontSize: 13, fontWeight: 700 }}>
                       Proof #{proof._id.slice(-6).toUpperCase()}
                     </div>
-                    <div style={{ color: "#64748b", fontSize: 11, marginTop: 2 }}>
+                    <div style={{ color: "rgba(255, 255, 255, 0.18)", fontSize: 11, marginTop: 2 }}>
                       {new Date(proof.createdAt).toLocaleDateString("en-IN", {
                         day: "2-digit",
                         month: "short",
@@ -454,7 +454,7 @@ export default function PaymentProof() {
                   style={{
                     marginTop: 16,
                     paddingTop: 16,
-                    borderTop: "1px solid #334155",
+                    borderTop: "1px solid rgba(255, 255, 255, 0.18)",
                   }}
                 >
                   <div style={{ marginBottom: 12 }}>
@@ -463,7 +463,7 @@ export default function PaymentProof() {
                     </div>
                     <div
                       style={{
-                        background: "#0f172a",
+                        background: "#0F1210",
                         borderRadius: 8,
                         padding: "10px 14px",
                         color: "#cbd5e1",
@@ -503,14 +503,14 @@ export default function PaymentProof() {
                             maxHeight: 300,
                             objectFit: "contain",
                             borderRadius: 8,
-                            background: "#0f172a",
+                            background: "#0F1210",
                             padding: 8,
                           }}
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = "none";
                             (e.target as HTMLImageElement).insertAdjacentHTML(
                               "afterend",
-                              '<p style="color:#64748b;font-size:13px;padding:12px">Image not available</p>'
+                              '<p style="color:rgba(255, 255, 255, 0.18);font-size:13px;padding:12px">Image not available</p>'
                             );
                           }}
                         />
@@ -524,7 +524,7 @@ export default function PaymentProof() {
                       style={{
                         marginTop: 12,
                         paddingTop: 12,
-                        borderTop: "1px solid #334155",
+                        borderTop: "1px solid rgba(255, 255, 255, 0.18)",
                         display: "flex",
                         justifyContent: "flex-end",
                       }}

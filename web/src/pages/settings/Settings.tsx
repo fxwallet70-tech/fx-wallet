@@ -52,7 +52,7 @@ export default function Settings() {
       title: "App Information",
       icon: "ℹ️",
       items: [
-        { label: "App Name", value: settings?.appName || "Nexora" },
+        { label: "App Name", value: settings?.appName || "FX Wallet" },
         { label: "Version", value: settings?.appVersion || "1.0.0" },
         { label: "Website", value: settings?.website, link: settings?.website },
       ],
@@ -61,9 +61,10 @@ export default function Settings() {
       title: "Support",
       icon: "🛟",
       items: [
-        { label: "Support Email", value: settings?.supportEmail, link: `mailto:${settings?.supportEmail}` },
-        { label: "Support Phone", value: settings?.supportPhone, link: `tel:${settings?.supportPhone}` },
-        { label: "Telegram", value: "@NEXORA31", link: "https://t.me/NEXORA31" },
+        { label: "Public Group", value: "https://t.me/FXwallet0", link: "https://t.me/FXwallet0" },
+        { label: "Official Channel", value: "https://t.me/+8tV1IrL6cdw3Zjc1", link: "https://t.me/+8tV1IrL6cdw3Zjc1" },
+        { label: "Official Gmail", value: "fxwallet@gmail.com", link: "mailto:fxwallet@gmail.com" },
+        { label: "Customer Support", value: "@FXwallet70", link: "https://t.me/FXwallet70" },
       ],
     },
     {
@@ -79,7 +80,7 @@ export default function Settings() {
       icon: "📖",
       items: settings?.aboutUs
         ? [{ label: "About Us", value: settings.aboutUs }]
-        : [{ label: "About Us", value: "Nexora is an investment platform." }],
+        : [{ label: "About Us", value: "FX Wallet is an investment platform." }],
     },
   ];
 
@@ -103,7 +104,7 @@ export default function Settings() {
               gap: 12,
               marginBottom: 16,
               paddingBottom: 12,
-              borderBottom: "1px solid #334155",
+              borderBottom: "1px solid rgba(255, 255, 255, 0.18)",
             }}
           >
             <span style={{ fontSize: 20 }}>{section.icon}</span>
@@ -120,7 +121,7 @@ export default function Settings() {
                 justifyContent: "space-between",
                 alignItems: "flex-start",
                 padding: "10px 0",
-                borderBottom: idx < section.items.length - 1 ? "1px solid #1e293b" : "none",
+                borderBottom: idx < section.items.length - 1 ? "1px solid #181E1B" : "none",
               }}
             >
               <span style={{ color: "#94a3b8", fontSize: 14 }}>{item.label}</span>
@@ -130,7 +131,7 @@ export default function Settings() {
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    color: "#3b82f6",
+                    color: "#8B2635",
                     fontSize: 14,
                     fontWeight: 600,
                     textDecoration: "none",

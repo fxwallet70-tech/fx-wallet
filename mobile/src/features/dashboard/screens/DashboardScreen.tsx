@@ -838,8 +838,7 @@ export default DashboardScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:
-      Theme.colors.background,
+    backgroundColor: 'transparent',
   },
 
   content: {
@@ -858,19 +857,19 @@ const styles = StyleSheet.create({
   },
 
   loadingText: {
-    color: Theme.colors.onLightText,
+    color: Theme.colors.text,
     marginTop: 14,
     fontSize: 15,
   },
 
   errorTitle: {
-    color: Theme.colors.onLightText,
+    color: Theme.colors.text,
     fontSize: 22,
     fontWeight: '700',
   },
 
   errorMessage: {
-    color: Theme.colors.onLightGrey,
+    color: Theme.colors.grey,
     textAlign: 'center',
     marginTop: 10,
     lineHeight: 21,
@@ -886,33 +885,35 @@ const styles = StyleSheet.create({
   },
 
   retryButtonText: {
-    color: '#FFFFFF',
+    color: Theme.colors.text,
     fontSize: 15,
     fontWeight: '700',
   },
 
   greeting: {
-   color: Theme.colors.onLightText,
+   color: Theme.colors.text,
    fontSize: 24,
    fontWeight: '800',
    marginTop: 2,
   },
 
   welcomeText: {
-   color: Theme.colors.onLightGrey,
+   color: Theme.colors.grey,
    fontSize: 13,
    marginTop: 2,
    marginBottom: 14,
   },
 
   announcementCard: {
-    backgroundColor: Theme.colors.glass,
+    backgroundColor: 'rgba(255,255,255,0.15)',
     borderRadius: 16,
     padding: 16,
     marginBottom: 14,
-    borderWidth: 1.5,
-    borderColor: Theme.colors.glassBorder,
-    ...Theme.shadows.card,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    backdropFilter: 'blur(20px) saturate(1.5)',
+    webkitBackdropFilter: 'blur(20px) saturate(1.5)',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
   },
 
   announcementLabel: {
@@ -935,22 +936,16 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
 
-  walletCard: {
-    backgroundColor:
-      Theme.colors.primary,
+walletCard: {
+    backgroundColor: 'rgba(255,255,255,0.15)',
     borderRadius: 20,
     padding: 20,
     marginTop: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.35)',
-    shadowColor: Theme.colors.accentShadow,
-    shadowOffset: {width: 0, height: 10},
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
-    // Cross-platform blue glow around the card
-    boxShadow:
-      '0px 0px 22px 3px rgba(59,130,246,0.55), 0px 10px 24px rgba(30,58,138,0.5)',
-    elevation: 10,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    backdropFilter: 'blur(20px) saturate(1.5)',
+    webkitBackdropFilter: 'blur(20px) saturate(1.5)',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
   },
 
   walletHeader: {
@@ -960,26 +955,25 @@ const styles = StyleSheet.create({
   },
 
   walletLabel: {
-    color: Theme.colors.onPrimarySoft,
+    color: Theme.colors.grey,
     fontSize: 13,
   },
 
   walletAmount: {
-    color: '#FFFFFF',
+    color: Theme.colors.text,
     fontSize: 31,
     fontWeight: '800',
     marginTop: 5,
   },
 
   openArrow: {
-    color: '#FFFFFF',
+    color: Theme.colors.text,
     fontSize: 34,
   },
 
   walletDivider: {
     height: 1,
-    backgroundColor:
-      'rgba(255,255,255,0.22)',
+    backgroundColor: 'rgba(0,0,0,0.10)',
     marginVertical: 17,
   },
 
@@ -993,19 +987,19 @@ const styles = StyleSheet.create({
   },
 
   walletSmallLabel: {
-    color: Theme.colors.onPrimarySoft,
+    color: Theme.colors.grey,
     fontSize: 11,
   },
 
   pendingReturnValue: {
-    color: '#E8F1FF',
+    color: Theme.colors.text,
     fontSize: 17,
     fontWeight: '800',
     marginTop: 4,
   },
 
   receivedReturnValue: {
-    color: '#D6F2DD',
+    color: Theme.colors.text,
     fontSize: 17,
     fontWeight: '800',
     marginTop: 4,
@@ -1020,7 +1014,7 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    color: Theme.colors.onLightText,
+    color: Theme.colors.text,
     fontSize: 18,
     fontWeight: '800',
     marginTop: 24,
@@ -1033,10 +1027,15 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 
-  subscriptionCard: {
-    backgroundColor: Theme.colors.card,
+subscriptionCard: {
+    backgroundColor: 'rgba(255,255,255,0.15)',
     borderRadius: 18,
     padding: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    backdropFilter: 'blur(20px) saturate(1.5)',
+    webkitBackdropFilter: 'blur(20px) saturate(1.5)',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
   },
 
   subscriptionHeader: {
@@ -1055,7 +1054,7 @@ const styles = StyleSheet.create({
   },
 
   subscriptionStatus: {
-    color: '#16A34A',
+    color: Theme.colors.text,
     fontSize: 12,
     fontWeight: '700',
     marginTop: 6,
@@ -1068,7 +1067,7 @@ const styles = StyleSheet.create({
     paddingVertical: 9,
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: Theme.colors.glassBorder,
+    borderColor: Theme.colors.border,
   },
 
   daysValue: {
@@ -1078,14 +1077,14 @@ const styles = StyleSheet.create({
   },
 
   daysText: {
-    color: Theme.colors.onLightGrey,
+    color: Theme.colors.grey,
     fontSize: 10,
     marginTop: 2,
   },
 
   subscriptionDivider: {
     height: 1,
-    backgroundColor: Theme.colors.hairline,
+    backgroundColor: 'rgba(0,0,0,0.10)',
     marginVertical: 16,
   },
 
@@ -1111,7 +1110,7 @@ const styles = StyleSheet.create({
   },
 
   expectedReturnValue: {
-    color: '#16A34A',
+    color: Theme.colors.text,
     fontSize: 17,
     fontWeight: '800',
     marginTop: 5,
@@ -1125,7 +1124,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     borderWidth: 1.5,
-    borderColor: Theme.colors.glassBorder,
+    borderColor: Theme.colors.border,
   },
 
   returnStatusText: {
@@ -1135,7 +1134,7 @@ const styles = StyleSheet.create({
   },
 
   expiryDateText: {
-    color: Theme.colors.onLightGrey,
+    color: Theme.colors.grey,
     fontSize: 11,
   },
 
@@ -1156,11 +1155,15 @@ const styles = StyleSheet.create({
 
   quickActionCard: {
     width: '100%',
-    backgroundColor: Theme.colors.glass,
+    backgroundColor: 'rgba(255,255,255,0.15)',
     borderRadius: 14,
     padding: 12,
     alignItems: 'flex-start',
-    ...Theme.shadows.card,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    backdropFilter: 'blur(20px) saturate(1.5)',
+    webkitBackdropFilter: 'blur(20px) saturate(1.5)',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
   },
 
   quickActionIconChip: {
@@ -1171,11 +1174,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: Theme.colors.glassBorder,
+    borderColor: Theme.colors.border,
   },
 
   quickActionIcon: {
-    color: Theme.colors.primary,
+    color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '900',
   },
@@ -1194,15 +1197,17 @@ const styles = StyleSheet.create({
   },
 
   transactionCard: {
-    backgroundColor: Theme.colors.card,
+    backgroundColor: 'rgba(255,255,255,0.15)',
     borderRadius: 14,
     padding: 14,
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
-    borderWidth: 1.5,
-    borderColor: Theme.colors.glassBorder,
-    ...Theme.shadows.card,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    backdropFilter: 'blur(20px) saturate(1.5)',
+    webkitBackdropFilter: 'blur(20px) saturate(1.5)',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
   },
 
   transactionIcon: {
@@ -1214,7 +1219,7 @@ const styles = StyleSheet.create({
   },
 
   creditIcon: {
-    backgroundColor: 'rgba(22,163,74,0.13)',
+    backgroundColor: 'rgba(212,175,55,0.13)',
   },
 
   debitIcon: {
@@ -1249,17 +1254,19 @@ const styles = StyleSheet.create({
   },
 
   creditText: {
-    color: '#16A34A',
+    color: Theme.colors.text,
   },
 
   debitText: {
     color: '#DC2626',
   },
 
-  noPlanCard: {
-    backgroundColor: Theme.colors.card,
+noPlanCard: {
+    backgroundColor: 'rgba(255,255,255,0.15)',
     borderRadius: 18,
     padding: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
   },
 
   noPlanTitle: {
@@ -1285,12 +1292,12 @@ const styles = StyleSheet.create({
   },
 
   choosePlanButtonText: {
-    color: '#FFFFFF',
+    color: Theme.colors.text,
     fontWeight: '800',
   },
 
   noTransactionText: {
-    color: Theme.colors.onLightGrey,
+    color: Theme.colors.grey,
     textAlign: 'center',
     paddingVertical: 22,
   },

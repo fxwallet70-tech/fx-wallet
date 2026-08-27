@@ -58,7 +58,7 @@ export default function Register() {
     <div className="auth-container">
       <form className="auth-card" onSubmit={handleSubmit}>
         <div className="auth-title">Create Account</div>
-        <div className="auth-subtitle">Join Nexora today</div>
+        <div className="auth-subtitle">Join FX Wallet today</div>
 
         {error && <div className="auth-error">{error}</div>}
 

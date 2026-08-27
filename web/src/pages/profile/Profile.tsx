@@ -179,7 +179,7 @@ export default function Profile() {
             gap: 16,
             marginBottom: 24,
             paddingBottom: 24,
-            borderBottom: "1px solid #334155",
+            borderBottom: "1px solid rgba(255, 255, 255, 0.18)",
           }}
         >
           <div
@@ -189,7 +189,7 @@ export default function Profile() {
               height: 64,
               borderRadius: 32,
               fontSize: 24,
-              background: "#2563eb",
+              background: "#8B2635",
             }}
           >
             {profile?.fullName?.charAt(0)?.toUpperCase() || "U"}
@@ -290,7 +290,7 @@ export default function Profile() {
                 <label className="form-label">Full Name</label>
                 <div
                   style={{
-                    background: "#0f172a",
+                    background: "#0F1210",
                     borderRadius: 10,
                     padding: "12px 14px",
                     color: "#fff",
@@ -304,7 +304,7 @@ export default function Profile() {
                 <label className="form-label">Email</label>
                 <div
                   style={{
-                    background: "#0f172a",
+                    background: "#0F1210",
                     borderRadius: 10,
                     padding: "12px 14px",
                     color: "#fff",
@@ -319,7 +319,7 @@ export default function Profile() {
               <label className="form-label">Mobile</label>
               <div
                 style={{
-                  background: "#0f172a",
+                  background: "#0F1210",
                   borderRadius: 10,
                   padding: "12px 14px",
                   color: "#fff",
@@ -334,7 +334,7 @@ export default function Profile() {
               style={{
                 marginTop: 24,
                 paddingTop: 24,
-                borderTop: "1px solid #334155",
+                borderTop: "1px solid rgba(255, 255, 255, 0.18)",
               }}
             >
               <button

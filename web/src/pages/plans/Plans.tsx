@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { getPlans, subscribePlan, createRazorpayOrder, verifyRazorpayPayment } from "../../services/planService";
+import { getCdmSetting, submitCdmRequest } from "../../services/cdmService";
 import type { Plan } from "../../services/planService";
 import { useAuth } from "../../context/AuthContext";
 
@@ -50,8 +51,14 @@ export default function Plans() {
   const [subscribing, setSubscribing] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<"Wallet" | "Razorpay">("Wallet");
+  const [paymentMethod, setPaymentMethod] = useState<"Wallet" | "CDM">("Wallet");
   const [subscribeError, setSubscribeError] = useState("");
+
+  // CDM State
+  const [cdmSetting, setCdmSetting] = useState<any>(null);
+  const [proofImage, setProofImage] = useState<File | null>(null);
+  const [transactionId, setTransactionId] = useState("");
+  const [isSubmittingCdm, setIsSubmittingCdm] = useState(false);
 
   useEffect(() => {
     loadPlans();
@@ -69,11 +76,19 @@ export default function Plans() {
     }
   };
 
-  const openSubscribeModal = (plan: Plan) => {
+  const openSubscribeModal = async (plan: Plan) => {
     setSelectedPlan(plan);
     setPaymentMethod("Wallet");
     setSubscribeError("");
     setShowModal(true);
+
+    // Load CDM context
+    try {
+      const cdmRes = await getCdmSetting();
+      setCdmSetting(cdmRes.data);
+    } catch (err) {
+      console.error("Failed to load CDM setting");
+    }
   };
 
   const handleSubscribe = async () => {
@@ -94,62 +109,28 @@ export default function Plans() {
         } else {
           setSubscribeError(res.message || "Subscription failed.");
         }
-      } else {
-        // Razorpay flow
-        const orderRes = await createRazorpayOrder(selectedPlan._id);
-
-        if (!orderRes.success || !orderRes.order) {
-          setSubscribeError(orderRes.message || "Failed to create payment order.");
+      } else if (paymentMethod === "CDM") {
+        if (!proofImage) {
+          setSubscribeError("Please upload a receipt screenshot.");
+          setSubscribing(null);
           return;
         }
 
-        const order = orderRes.order;
-        const options = {
-          key: import.meta.env.VITE_RAZORPAY_KEY_ID || "",
-          amount: order.amount,
-          currency: order.currency || "INR",
-          name: "Nexora",
-          description: selectedPlan.title,
-          order_id: order.id,
-          handler: async (response: any) => {
-            try {
-              const verifyRes = await verifyRazorpayPayment({
-                razorpayOrderId: response.razorpay_order_id,
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpaySignature: response.razorpay_signature,
-                planId: selectedPlan._id,
-              });
+        setIsSubmittingCdm(true);
+        const res = await submitCdmRequest(
+          selectedPlan._id,
+          proofImage,
+          `Plan: ${selectedPlan.title}`,
+          transactionId
+        );
 
-              if (verifyRes.success) {
-                alert("Payment successful! Plan subscribed.");
-                setShowModal(false);
-              } else {
-                setSubscribeError(verifyRes.message || "Payment verification failed.");
-              }
-            } catch (err: any) {
-              setSubscribeError(err.response?.data?.message || "Payment verification failed.");
-            }
-          },
-          prefill: {
-            name: user?.fullName || "",
-            email: user?.email || "",
-            contact: user?.mobile || "",
-          },
-          theme: {
-            color: "#2563eb",
-          },
-          modal: {
-            ondismiss: () => {
-              setSubscribing(null);
-            },
-          },
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.on("payment.failed", (response: any) => {
-          setSubscribeError(response.error?.description || "Payment failed.");
-        });
-        rzp.open();
+        if (res.success) {
+          alert("CDM payment submitted for approval!");
+          setShowModal(false);
+        } else {
+          setSubscribeError(res.message || "Submission failed.");
+        }
+        setIsSubmittingCdm(false);
       }
     } catch (err: any) {
       setSubscribeError(err.response?.data?.message || "Subscription failed. Please try again.");
@@ -252,7 +233,7 @@ export default function Plans() {
                   gridTemplateColumns: "1fr 1fr",
                   gap: 12,
                   padding: "16px 0",
-                  borderTop: "1px solid #334155",
+                  borderTop: "1px solid rgba(255, 255, 255, 0.18)",
                   marginBottom: 16,
                 }}
               >
@@ -310,7 +291,7 @@ export default function Plans() {
             <div className="modal-body">
               <div
                 style={{
-                  background: "#0f172a",
+                  background: "#0F1210",
                   borderRadius: 12,
                   padding: 16,
                   marginBottom: 20,
@@ -376,17 +357,37 @@ export default function Plans() {
                     onClick={() => setPaymentMethod("Wallet")}
                     style={{ flex: 1 }}
                   >
-                    Wallet Balance
+                    Wallet
                   </button>
                   <button
-                    className={`btn ${paymentMethod === "Razorpay" ? "btn-primary" : "btn-secondary"}`}
-                    onClick={() => setPaymentMethod("Razorpay")}
+                    className={`btn ${paymentMethod === "CDM" ? "btn-primary" : "btn-secondary"}`}
+                    onClick={() => setPaymentMethod("CDM")}
                     style={{ flex: 1 }}
                   >
-                    Razorpay
+                    CDM
                   </button>
                 </div>
               </div>
+
+              {paymentMethod === "CDM" && (
+                <div style={{ background: "#0F1210", padding: 16, borderRadius: 12, marginBottom: 16 }}>
+                  <p style={{ color: "#94a3b8", fontSize: 13, marginBottom: 8 }}>Upload payment receipt</p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setProofImage(e.target.files ? e.target.files[0] : null)}
+                    style={{ color: "#fff", marginBottom: 12 }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Transaction ID / UTR"
+                    value={transactionId}
+                    onChange={(e) => setTransactionId(e.target.value)}
+                    className="form-input"
+                    style={{ width: "100%", padding: 10, borderRadius: 8, background: "#181E1B", color: "#fff", border: "1px solid rgba(255, 255, 255, 0.18)" }}
+                  />
+                </div>
+              )}
             </div>
             <div className="modal-footer">
               <button
@@ -398,12 +399,14 @@ export default function Plans() {
               <button
                 className="btn btn-primary"
                 onClick={handleSubscribe}
-                disabled={subscribing === selectedPlan._id}
+                disabled={subscribing === selectedPlan._id || isSubmittingCdm}
               >
-                {subscribing === selectedPlan._id
+                {subscribing === selectedPlan._id || isSubmittingCdm
                   ? "Processing..."
                   : paymentMethod === "Wallet"
                   ? `Pay ${formatCurrency(selectedPlan.price)}`
+                  : paymentMethod === "CDM"
+                  ? "Submit Proof"
                   : "Pay with Razorpay"}
               </button>
             </div>

@@ -5,9 +5,9 @@
  */
 import StartIoAds from './nativeModule';
 
-export const adsEnabled = true;
+export const adsEnabled = false;
 
-const isAvailable = () => Boolean(StartIoAds);
+const isAvailable = () => Boolean(StartIoAds) && adsEnabled;
 
 /** Minimum seconds between two interstitial ads. */
 const INTERSTITIAL_COOLDOWN_MS = 90 * 1000;

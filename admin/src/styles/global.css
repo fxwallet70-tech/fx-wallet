@@ -534,8 +534,8 @@ background:#f8fafc;
 }
 
 .status-badge.active {
-  background: #dcfce7;
-  color: #166534;
+  background: #fef9e7;
+  color: #B8860B;
 }
 
 .status-badge.inactive {
@@ -951,8 +951,8 @@ background:#f8fafc;
 }
 
 .preview-active {
-  color: #166534;
-  background: #dcfce7;
+  color: #B8860B;
+  background: #fef9e7;
 }
 
 .preview-inactive {

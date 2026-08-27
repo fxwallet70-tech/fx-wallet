@@ -198,7 +198,7 @@ export default function UsdtDeposit() {
               width: 40,
               height: 40,
               borderRadius: 10,
-              background: "#2563eb",
+              background: "#8B2635",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -245,7 +245,7 @@ export default function UsdtDeposit() {
                 style={{
                   marginBottom: 16,
                   textAlign: "center",
-                  background: "#0f172a",
+                  background: "#0F1210",
                   borderRadius: 12,
                   padding: 16,
                 }}
@@ -279,8 +279,8 @@ export default function UsdtDeposit() {
                     display: "flex",
                     alignItems: "center",
                     gap: 8,
-                    background: "#0f172a",
-                    border: "1px solid #334155",
+                    background: "#0F1210",
+                    border: "1px solid rgba(255, 255, 255, 0.18)",
                     borderRadius: 10,
                     padding: "10px 14px",
                   }}
@@ -310,7 +310,7 @@ export default function UsdtDeposit() {
             {data?.description && (
               <div
                 style={{
-                  background: "#0f172a",
+                  background: "#0F1210",
                   borderRadius: 12,
                   padding: 16,
                   marginBottom: 12,
@@ -405,7 +405,7 @@ export default function UsdtDeposit() {
             </strong>
             <p style={{ color: "#94a3b8", fontSize: 13, margin: 0, lineHeight: 1.5 }}>
               Upload the transaction screenshot from your wallet (MetaMask, Trust Wallet, etc.)
-              and enter your wallet address. Our team will verify and credit your Nexora wallet.
+              and enter your wallet address. Our team will verify and credit your FX Wallet wallet.
             </p>
           </div>
         </div>
@@ -456,19 +456,19 @@ export default function UsdtDeposit() {
           <div
             onClick={() => fileInputRef.current?.click()}
             style={{
-              border: "2px dashed #334155",
+              border: "2px dashed rgba(255, 255, 255, 0.18)",
               borderRadius: 12,
               padding: preview ? 12 : 32,
               textAlign: "center",
               cursor: "pointer",
               transition: "border-color 0.2s, background 0.2s",
-              background: preview ? "#0f172a" : "transparent",
+              background: preview ? "#0F1210" : "transparent",
             }}
             onMouseEnter={(e) => {
-              if (!preview) e.currentTarget.style.borderColor = "#2563eb";
+              if (!preview) e.currentTarget.style.borderColor = "#8B2635";
             }}
             onMouseLeave={(e) => {
-              if (!preview) e.currentTarget.style.borderColor = "#334155";
+              if (!preview) e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.18)";
             }}
           >
             {preview ? (
@@ -504,7 +504,7 @@ export default function UsdtDeposit() {
                     width: 48,
                     height: 48,
                     borderRadius: 24,
-                    background: "#1e293b",
+                    background: "#181E1B",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -516,7 +516,7 @@ export default function UsdtDeposit() {
                 <p style={{ color: "#cbd5e1", fontSize: 14, fontWeight: 600, margin: "0 0 4px" }}>
                   Click to upload USDT transaction screenshot
                 </p>
-                <p style={{ color: "#64748b", fontSize: 12, margin: 0 }}>
+                <p style={{ color: "rgba(255, 255, 255, 0.18)", fontSize: 12, margin: 0 }}>
                   JPEG, PNG, or WebP · Max 5MB
                 </p>
               </>
@@ -549,12 +549,12 @@ export default function UsdtDeposit() {
               marginTop: 6,
             }}
           >
-            <span style={{ color: "#64748b", fontSize: 12 }}>
-              We'll credit your Nexora wallet after verification
+            <span style={{ color: "rgba(255, 255, 255, 0.18)", fontSize: 12 }}>
+              We'll credit your FX Wallet wallet after verification
             </span>
             <span
               style={{
-                color: accountDetails.length > 500 ? "#fca5a5" : "#64748b",
+                color: accountDetails.length > 500 ? "#fca5a5" : "rgba(255, 255, 255, 0.18)",
                 fontSize: 12,
               }}
             >
@@ -649,7 +649,7 @@ export default function UsdtDeposit() {
                 marginBottom: 12,
                 cursor: "pointer",
                 transition: "border-color 0.2s",
-                borderColor: selectedProof?._id === proof._id ? "#2563eb" : undefined,
+                borderColor: selectedProof?._id === proof._id ? "#8B2635" : undefined,
                 padding: 16,
               }}
               onClick={() =>
@@ -669,7 +669,7 @@ export default function UsdtDeposit() {
                       width: 40,
                       height: 40,
                       borderRadius: 10,
-                      background: "#0f172a",
+                      background: "#0F1210",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -695,7 +695,7 @@ export default function UsdtDeposit() {
                     <div style={{ color: "#fff", fontSize: 13, fontWeight: 700 }}>
                       USDT Deposit #{proof._id.slice(-6).toUpperCase()}
                     </div>
-                    <div style={{ color: "#64748b", fontSize: 11, marginTop: 2 }}>
+                    <div style={{ color: "rgba(255, 255, 255, 0.18)", fontSize: 11, marginTop: 2 }}>
                       {new Date(proof.createdAt).toLocaleDateString("en-IN", {
                         day: "2-digit",
                         month: "short",
@@ -729,7 +729,7 @@ export default function UsdtDeposit() {
                   style={{
                     marginTop: 16,
                     paddingTop: 16,
-                    borderTop: "1px solid #334155",
+                    borderTop: "1px solid rgba(255, 255, 255, 0.18)",
                   }}
                 >
                   <div style={{ marginBottom: 12 }}>
@@ -738,7 +738,7 @@ export default function UsdtDeposit() {
                     </div>
                     <div
                       style={{
-                        background: "#0f172a",
+                        background: "#0F1210",
                         borderRadius: 8,
                         padding: "10px 14px",
                         color: "#cbd5e1",
@@ -779,14 +779,14 @@ export default function UsdtDeposit() {
                             maxHeight: 300,
                             objectFit: "contain",
                             borderRadius: 8,
-                            background: "#0f172a",
+                            background: "#0F1210",
                             padding: 8,
                           }}
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = "none";
                             (e.target as HTMLImageElement).insertAdjacentHTML(
                               "afterend",
-                              '<p style="color:#64748b;font-size:13px;padding:12px">Image not available</p>'
+                              '<p style="color:rgba(255, 255, 255, 0.18);font-size:13px;padding:12px">Image not available</p>'
                             );
                           }}
                         />
@@ -800,7 +800,7 @@ export default function UsdtDeposit() {
                       style={{
                         marginTop: 12,
                         paddingTop: 12,
-                        borderTop: "1px solid #334155",
+                        borderTop: "1px solid rgba(255, 255, 255, 0.18)",
                         display: "flex",
                         justifyContent: "flex-end",
                       }}

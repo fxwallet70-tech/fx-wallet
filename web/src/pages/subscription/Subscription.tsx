@@ -147,8 +147,8 @@ export default function Subscription() {
                 gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
                 gap: 16,
                 padding: "16px 0",
-                borderTop: "1px solid #334155",
-                borderBottom: "1px solid #334155",
+                borderTop: "1px solid rgba(255, 255, 255, 0.18)",
+                borderBottom: "1px solid rgba(255, 255, 255, 0.18)",
                 marginBottom: 16,
               }}
             >

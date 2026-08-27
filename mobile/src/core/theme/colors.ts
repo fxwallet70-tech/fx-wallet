@@ -1,56 +1,61 @@
 const Colors = {
   /*
-   * Accent family — Deep Blue
+   * Primary family — Deep Velvet Maroon
    */
-  primary: '#2563EB',
-  secondary: '#3B82F6',
+  primary: '#8B2635',
+  secondary: '#2D5A27',
 
-  primaryDeep: '#1D4ED8',
-  primarySoft: '#DBEAFE',
-  primaryGlow: '#60A5FA',
-  accentShadow: '#1E3A8A',
+  primaryDeep: '#5A1A24',
+  primarySoft: 'rgba(139, 38, 53, 0.14)',
+  primaryGlow: '#8B2635',
+  accentShadow: 'rgba(139, 38, 53, 0.25)',
 
-  background: '#0B1120',
+  background: '#0F1210',
 
   /*
-   * Cards — dark glass (transparent + glassy)
+   * Cards — Deep Forest Glass (frosted)
    */
-  card: 'rgba(15,25,50,0.62)',
-  cardSolid: '#141E38',
+  card: 'rgba(22, 28, 24, 0.8)',
+  cardSolid: '#181E1B',
 
-  white: '#FFFFFF',
+  white: '#E8E3D8',
 
   /*
-   * On-card text (dark glass cards -> white)
+   * On-card text
    */
-  text: '#EAF0F9',
-  grey: '#A6B3C7',
-  onLightText: '#EAF0F9',
-  onLightGrey: '#A6B3C7',
+  text: '#E8E3D8',
+  grey: '#A3A097',
+  onLightText: '#E8E3D8',
+  onLightGrey: '#A3A097',
 
-  border: '#1E3A6E',
+  border: 'rgba(255, 255, 255, 0.60)',
 
-  success: '#22C55E',
-  warning: '#F59E0B',
-  danger: '#EF4444',
+  success: '#2D5A27',
+  warning: '#8B2635',
+  danger: '#A35555',
 
   /*
    * Glassmorphism tokens
    */
-  glass: 'rgba(18,28,52,0.55)',
-  glassStrong: 'rgba(18,28,52,0.80)',
-  glassBorder: 'rgba(96,165,250,0.55)',
-  glassShadow: '#1E3A8A',
-  hairline: 'rgba(96,165,250,0.30)',
+  glass: 'rgba(22, 28, 24, 0.8)',
+  glassStrong: 'rgba(22, 28, 24, 0.95)',
+  glassBorder: 'rgba(255, 255, 255, 0.60)',
+  glassShadow: 'rgba(0, 0, 0, 0.50)',
+  hairline: 'rgba(139, 38, 53, 0.15)',
 
-  inputBg: 'rgba(15,25,50,0.70)',
+  inputBg: 'rgba(22, 28, 24, 0.70)',
 
-  onPrimary: '#FFFFFF',
-  onPrimarySoft: '#DBEAFE',
-  softAmber: '#DBEAFE',
+  /*
+   * Accent helpers
+   */
+  goldSoft: 'rgba(139, 38, 53, 0.10)',
+  goldGlow: 'rgba(139, 38, 53, 0.20)',
 
-  cream: '#0B1120',
-  creamDeep: '#0F172A',
+  onPrimary: '#E8E3D8',
+  onPrimarySoft: 'rgba(139, 38, 53, 0.18)',
+
+  cream: '#181E1B',
+  creamDeep: '#0F1210',
 };
 
 export default Colors;

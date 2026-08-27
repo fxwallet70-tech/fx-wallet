@@ -542,8 +542,7 @@ export default WalletScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:
-      Theme.colors.background,
+    backgroundColor: 'transparent',
   },
 
   centerContainer: {
@@ -575,29 +574,21 @@ const styles = StyleSheet.create({
   },
 
   balanceCard: {
-    backgroundColor:
-      Theme.colors.primary,
+    backgroundColor: Theme.colors.glass,
     borderRadius: 20,
     padding: 22,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.35)',
-    shadowColor: Theme.colors.accentShadow,
-    shadowOffset: {width: 0, height: 10},
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
-    // Cross-platform blue glow around the card
-    boxShadow:
-      '0px 0px 24px 3px rgba(59,130,246,0.55), 0px 10px 26px rgba(30,58,138,0.5)',
-    elevation: 10,
+    borderColor: Theme.colors.glassBorder,
+    ...Theme.shadows.card,
   },
 
   balanceLabel: {
-    color: Theme.colors.onPrimarySoft,
+    color: Theme.colors.grey,
     fontSize: 14,
   },
 
   balanceAmount: {
-    color: '#FFFFFF',
+    color: Theme.colors.text,
     fontSize: 36,
     fontWeight: '800',
     marginTop: 8,
@@ -630,7 +621,7 @@ const styles = StyleSheet.create({
   },
 
   returnAmount: {
-    color: '#7EA6F8',
+    color: Theme.colors.text,
     fontSize: 27,
     fontWeight: '800',
     marginTop: 5,
@@ -644,14 +635,14 @@ const styles = StyleSheet.create({
   },
 
   pendingBadge: {
-    backgroundColor: 'rgba(255,178,122,0.16)',
+    backgroundColor: Theme.colors.goldSoft,
     borderRadius: 20,
     paddingHorizontal: 11,
     paddingVertical: 6,
   },
 
   pendingBadgeText: {
-    color: Theme.colors.primaryDeep,
+    color: Theme.colors.primary,
     fontSize: 11,
     fontWeight: '700',
   },
@@ -678,18 +669,7 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     padding: 15,
     borderWidth: 1.5,
-    borderColor: Theme.colors.glassBorder,
-    ...Theme.shadows.card,
-  },
-
-  statCard: {
-    width: '48%',
-    backgroundColor: Theme.colors.card,
-    borderRadius: 15,
-    padding: 15,
-    marginBottom: 12,
-    borderWidth: 1.5,
-    borderColor: Theme.colors.glassBorder,
+    borderColor: Theme.colors.border,
     ...Theme.shadows.card,
   },
 
@@ -705,23 +685,22 @@ const styles = StyleSheet.create({
   },
 
   maturityCard: {
-    backgroundColor: 'rgba(22,163,74,0.14)',
+    backgroundColor: Theme.colors.goldSoft,
     borderRadius: 16,
     padding: 17,
     marginTop: 2,
     borderWidth: 1,
-    borderColor: 'rgba(34,197,94,0.4)',
-    boxShadow: '0px 0px 18px 2px rgba(34,197,94,0.30)',
-    elevation: 6,
+    borderColor: Theme.colors.border,
+    ...Theme.shadows.card,
   },
 
   maturityLabel: {
-    color: '#86EFAC',
+    color: Theme.colors.grey,
     fontSize: 13,
   },
 
   maturityAmount: {
-    color: '#16A34A',
+    color: Theme.colors.primary,
     fontSize: 23,
     fontWeight: '800',
     marginTop: 5,
@@ -736,8 +715,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginTop: 14,
-    borderWidth: 1.5,
-    borderColor: Theme.colors.glassBorder,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
     ...Theme.shadows.card,
   },
 
@@ -753,10 +732,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 
- 
-
   sectionTitle: {
-    color: Theme.colors.onLightText,
+    color: Theme.colors.text,
     fontSize: 19,
     fontWeight: '700',
     marginTop: 27,
@@ -764,15 +741,14 @@ const styles = StyleSheet.create({
   },
 
   transactionCard: {
-    backgroundColor:
-      Theme.colors.card,
+    backgroundColor: Theme.colors.card,
     borderRadius: 15,
     padding: 15,
     marginBottom: 11,
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: Theme.colors.glassBorder,
+    borderWidth: 1,
+    borderColor: Theme.colors.border,
     ...Theme.shadows.card,
   },
 
@@ -785,21 +761,19 @@ const styles = StyleSheet.create({
   },
 
   creditIcon: {
-    backgroundColor:
-      'rgba(34,197,94,0.15)',
+    backgroundColor: Theme.colors.primarySoft,
   },
 
   debitIcon: {
-    backgroundColor:
-      'rgba(239,68,68,0.15)',
+    backgroundColor: 'rgba(163, 85, 85, 0.15)',
   },
 
   returnIcon: {
-    backgroundColor: 'rgba(22,163,74,0.13)',
+    backgroundColor: Theme.colors.primarySoft,
   },
 
   returnIconText: {
-    color: '#166534',
+    color: Theme.colors.primary,
   },
 
   typeIconText: {
@@ -837,11 +811,11 @@ const styles = StyleSheet.create({
   },
 
   creditText: {
-    color: '#16A34A',
+    color: Theme.colors.success,
   },
 
   debitText: {
-    color: '#DC2626',
+    color: Theme.colors.danger,
   },
 
   loadingText: {

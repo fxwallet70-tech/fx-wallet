@@ -41,7 +41,7 @@ export default function Login() {
   return (
     <div className="auth-container">
       <form className="auth-card" onSubmit={handleSubmit}>
-        <div className="auth-title">NEXORA</div>
+        <div className="auth-title">FX WALLET</div>
         <div className="auth-subtitle">Welcome back</div>
 
         {error && <div className="auth-error">{error}</div>}

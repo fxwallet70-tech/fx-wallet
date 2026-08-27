@@ -23,10 +23,6 @@ import PressableScale from '../../../shared/components/animations/PressableScale
 import HoverWiggle from '../../../shared/components/animations/HoverWiggle';
 import GlassCard from '../../../shared/components/Card/GlassCard';
 import SupportSheet from '../../../shared/components/SupportSheet';
-import {
-  preloadRewardedVideo,
-  showRewardedVideo,
-} from '../../../shared/ads/adsService';
 
 const UsdtDepositScreen = () => {
   const [image, setImage] = useState<string | null>(null);
@@ -68,7 +64,6 @@ const UsdtDepositScreen = () => {
 
     load();
     loadMyProofs();
-    preloadRewardedVideo();
   }, []);
 
   const handlePickImage = async () => {
@@ -134,7 +129,6 @@ const UsdtDepositScreen = () => {
       setIfscUpi('');
       setIsDetailsOpen(false);
       loadMyProofs();
-      showRewardedVideo();
     } catch (error: any) {
       Alert.alert(
         'Error',
@@ -339,7 +333,7 @@ export default UsdtDepositScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Theme.colors.background,
+    backgroundColor: 'transparent',
   },
   content: {
     padding: 20,
@@ -347,7 +341,7 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     flex: 1,
-    backgroundColor: Theme.colors.background,
+    backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -435,12 +429,12 @@ const styles = StyleSheet.create({
   },
   pickImageButton: {
     borderWidth: 1.5,
-    borderColor: 'rgba(110,66,22,0.85)',
+    borderColor: Theme.colors.glassBorder,
     borderRadius: 10,
     paddingVertical: 12,
     alignItems: 'center',
     marginBottom: 12,
-    backgroundColor: 'rgba(255,250,240,0.35)',
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
   pickImageText: {
     color: Theme.colors.text,

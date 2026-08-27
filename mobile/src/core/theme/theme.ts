@@ -17,37 +17,39 @@ const Theme = {
 
   shadows: {
     card: {
-      shadowColor: Colors.glassShadow,
+      shadowColor: '#000000',
       shadowOffset: {
         width: 0,
         height: 6,
       },
-      shadowOpacity: 0.25,
+      shadowOpacity: 0.22,
       shadowRadius: 20,
-      // Cross-platform colored glow (works on Android + iOS via boxShadow)
-      boxShadow: '0px 6px 20px rgba(30,58,138,0.45), 0px 0px 16px rgba(96,165,250,0.20)',
+      // Soft neutral depth only — no colored glow, keeps the frosted look
+      boxShadow: '0px 6px 20px rgba(0,0,0,0.35)',
       elevation: 6,
-    },
+      },
 
     button: {
-      shadowColor: Colors.accentShadow,
+      shadowColor: '#000000',
       shadowOffset: {
         width: 0,
         height: 6,
       },
-      shadowOpacity: 0.35,
-      shadowRadius: 10,
-      boxShadow: '0px 6px 18px rgba(29,78,216,0.55), 0px 0px 14px rgba(96,165,250,0.35)',
-      elevation: 7,
+      shadowOpacity: 0.3,
+      shadowRadius: 8,
+      // Neutral depth shadow only — colored glow removed
+      boxShadow: '0px 6px 18px rgba(0,0,0,0.35)',
+      elevation: 4,
     },
 
     glow: {
-      shadowColor: Colors.primaryGlow,
-      shadowOffset: {width: 0, height: 0},
-      shadowOpacity: 0.55,
-      shadowRadius: 18,
-      boxShadow: '0px 0px 20px 3px rgba(96,165,250,0.55)',
-      elevation: 12,
+      shadowColor: '#000000',
+      shadowOffset: {width: 0, height: 6},
+      shadowOpacity: 0.3,
+      shadowRadius: 10,
+      // Neutral depth shadow only — glow halo removed
+      boxShadow: '0px 6px 16px rgba(0,0,0,0.35)',
+      elevation: 4,
     },
   },
 };

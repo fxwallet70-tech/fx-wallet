@@ -21,8 +21,8 @@
 .referral-loading .spinner {
   width: 36px;
   height: 36px;
-  border: 2px solid rgba(99, 102, 241, 0.15);
-  border-top-color: #6366f1;
+  border: 2px solid rgba(139, 38, 53, 0.15);
+  border-top-color: #8B2635;
   border-radius: 50%;
   animation: referral-spin 0.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
@@ -42,19 +42,19 @@
 .referral-retry-btn {
   margin-top: 16px;
   padding: 10px 24px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, #8B2635, #5A1A24);
   color: #fff;
   border: none;
   border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25);
+  box-shadow: 0 4px 16px rgba(139, 38, 53, 0.25);
 }
 
 .referral-retry-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 8px 28px rgba(139, 38, 53, 0.35);
 }
 
 .referral-header {
@@ -89,8 +89,8 @@
 }
 
 .referral-card:hover {
-  border-color: rgba(99, 102, 241, 0.2);
-  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.06);
+  border-color: rgba(139, 38, 53, 0.2);
+  box-shadow: 0 8px 32px rgba(139, 38, 53, 0.06);
 }
 
 .code-card {
@@ -104,13 +104,13 @@
 .code-card-icon {
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.15));
+  background: linear-gradient(135deg, rgba(139, 38, 53, 0.2), rgba(90, 26, 36, 0.15));
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 12px;
-  color: #818cf8;
+  color: #C9717E;
 }
 
 .code-label {
@@ -123,7 +123,7 @@
   font-family: "Space Grotesk", "Courier New", monospace;
   font-size: 32px;
   font-weight: 800;
-  color: #818cf8;
+  color: #C9717E;
   letter-spacing: 4px;
   margin-bottom: 24px;
 }
@@ -140,10 +140,10 @@
   align-items: center;
   gap: 8px;
   padding: 11px 22px;
-  border: 1px solid rgba(99, 102, 241, 0.2);
+  border: 1px solid rgba(139, 38, 53, 0.2);
   border-radius: 10px;
-  background: rgba(99, 102, 241, 0.08);
-  color: #a5b4fc;
+  background: rgba(139, 38, 53, 0.08);
+  color: #D9A7B0;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -151,8 +151,8 @@
 }
 
 .code-action-btn:hover {
-  background: rgba(99, 102, 241, 0.15);
-  border-color: rgba(99, 102, 241, 0.35);
+  background: rgba(139, 38, 53, 0.15);
+  border-color: rgba(139, 38, 53, 0.35);
   color: #c7d2fe;
   transform: translateY(-1px);
 }
@@ -217,8 +217,8 @@
 }
 
 .section-count {
-  background: rgba(99, 102, 241, 0.15);
-  color: #818cf8;
+  background: rgba(139, 38, 53, 0.15);
+  color: #C9717E;
   font-size: 12px;
   font-weight: 700;
   padding: 2px 10px;
@@ -242,12 +242,12 @@
 .empty-icon {
   width: 80px;
   height: 80px;
-  background: rgba(99, 102, 241, 0.08);
+  background: rgba(139, 38, 53, 0.08);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6366f1;
+  color: #8B2635;
 }
 
 .empty-state h3 {
@@ -271,7 +271,7 @@
   gap: 8px;
   margin-top: 8px;
   padding: 11px 24px;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, #8B2635, #5A1A24);
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -279,17 +279,17 @@
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s;
-  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25);
+  box-shadow: 0 4px 16px rgba(139, 38, 53, 0.25);
 }
 
 .share-now-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 8px 28px rgba(139, 38, 53, 0.35);
 }
 
 .share-btn {
-  background: rgba(99, 102, 241, 0.12);
-  border-color: rgba(99, 102, 241, 0.3);
+  background: rgba(139, 38, 53, 0.12);
+  border-color: rgba(139, 38, 53, 0.3);
 }
 
 /* Referrals List */
@@ -312,7 +312,7 @@
 }
 
 .referral-item:hover {
-  border-color: rgba(99, 102, 241, 0.15);
+  border-color: rgba(139, 38, 53, 0.15);
   background: rgba(22, 22, 36, 0.7);
   transform: translateX(2px);
 }
@@ -326,12 +326,12 @@
 .referral-avatar {
   width: 44px;
   height: 44px;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.15));
+  background: linear-gradient(135deg, rgba(139, 38, 53, 0.2), rgba(90, 26, 36, 0.15));
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #818cf8;
+  color: #C9717E;
   font-weight: 700;
   font-size: 16px;
 }

@@ -42,12 +42,12 @@ export default function ReferAndEarn() {
   };
 
   const handleShare = async () => {
-    const shareText = `Join Nexora using my referral code ${referralCode} and start growing your wealth today!`;
+    const shareText = `Join FX Wallet using my referral code ${referralCode} and start growing your wealth today!`;
 
     if (typeof navigator.share === "function") {
       try {
         await navigator.share({
-          title: "Refer & Earn - Nexora",
+          title: "Refer & Earn - FX Wallet",
           text: shareText,
         });
       } catch (err: any) {

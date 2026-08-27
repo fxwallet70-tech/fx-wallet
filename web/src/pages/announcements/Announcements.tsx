@@ -69,7 +69,7 @@ export default function Announcements() {
         <div>
           <h1 style={{ color: "#fff", margin: 0, fontSize: 24 }}>Announcements</h1>
           <p style={{ color: "#94a3b8", marginTop: 4 }}>
-            Latest news and updates from Nexora
+            Latest news and updates from FX Wallet
           </p>
         </div>
       </div>
@@ -89,7 +89,7 @@ export default function Announcements() {
             className="card"
             style={{
               marginBottom: 16,
-              borderLeft: announcement.status ? "4px solid #2563eb" : "4px solid #64748b",
+              borderLeft: announcement.status ? "4px solid #8B2635" : "4px solid rgba(255, 255, 255, 0.18)",
               opacity: announcement.status ? 1 : 0.6,
             }}
           >
@@ -112,7 +112,7 @@ export default function Announcements() {
                 {announcement.title}
               </h3>
               {announcement.createdAt && (
-                <span style={{ color: "#64748b", fontSize: 12, whiteSpace: "nowrap", marginLeft: 12 }}>
+                <span style={{ color: "rgba(255, 255, 255, 0.18)", fontSize: 12, whiteSpace: "nowrap", marginLeft: 12 }}>
                   {formatDate(announcement.createdAt)}
                 </span>
               )}
@@ -133,7 +133,7 @@ export default function Announcements() {
                 style={{
                   marginTop: 12,
                   fontSize: 11,
-                  color: "#64748b",
+                  color: "rgba(255, 255, 255, 0.18)",
                 }}
               >
                 Archived

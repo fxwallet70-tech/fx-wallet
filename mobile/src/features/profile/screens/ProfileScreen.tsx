@@ -560,8 +560,7 @@ export default ProfileScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:
-      Theme.colors.background,
+    backgroundColor: 'transparent',
   },
 
   content: {
@@ -571,8 +570,7 @@ const styles = StyleSheet.create({
 
   centerContainer: {
     flex: 1,
-    backgroundColor:
-      Theme.colors.background,
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 25,

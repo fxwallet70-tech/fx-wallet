@@ -108,7 +108,7 @@ export default function Dashboard() {
             Hello, {user?.fullName || "User"} 👋
           </h1>
           <p style={{ color: "#94a3b8", marginTop: 4 }}>
-            Welcome back to Nexora
+            Welcome back to FX Wallet
           </p>
         </div>
       </div>
@@ -165,7 +165,7 @@ export default function Dashboard() {
 
       {/* Stats Grid */}
       <div className="stats-grid">
-        <div className="stat-card" style={{ borderLeft: "4px solid #2563eb" }}>
+        <div className="stat-card" style={{ borderLeft: "4px solid #8B2635" }}>
           <div className="stat-content">
             <div className="stat-title">Total Balance</div>
             <div className="stat-value">{formatCurrency(wallet?.balance)}</div>
@@ -190,7 +190,7 @@ export default function Dashboard() {
         <div className="stat-card" style={{ borderLeft: "4px solid #a855f7" }}>
           <div className="stat-content">
             <div className="stat-title">Active Plans</div>
-            <div className="stat-value" style={{ color: "#c084fc" }}>
+            <div className="stat-value" style={{ color: "#C9717E" }}>
               {subscriptions.filter((s) => s.status === "Active").length}
             </div>
           </div>
@@ -245,7 +245,7 @@ export default function Dashboard() {
             <div
               style={{
                 height: 1,
-                background: "#334155",
+                background: "rgba(255, 255, 255, 0.18)",
                 margin: "16px 0",
               }}
             />
@@ -325,7 +325,7 @@ export default function Dashboard() {
             onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-2px)")}
             onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
           >
-            <div style={{ color: "#2563eb", fontSize: 20, fontWeight: 900 }}>
+            <div style={{ color: "#8B2635", fontSize: 20, fontWeight: 900 }}>
               {action.emoji}
             </div>
             <h4 style={{ color: "#fff", margin: "10px 0 0", fontSize: 14, fontWeight: 800 }}>
@@ -387,7 +387,7 @@ export default function Dashboard() {
                 <div style={{ color: "#fff", fontSize: 13, fontWeight: 700 }}>
                   {getTransactionTitle(tx)}
                 </div>
-                <div style={{ color: "#64748b", fontSize: 10, marginTop: 4 }}>
+                <div style={{ color: "rgba(255, 255, 255, 0.18)", fontSize: 10, marginTop: 4 }}>
                   {formatDate(tx.createdAt)}
                 </div>
               </div>

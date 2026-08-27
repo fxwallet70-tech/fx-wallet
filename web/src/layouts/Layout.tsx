@@ -94,7 +94,7 @@ export default function Layout({ children }: { children?: ReactNode }) {
         <div className="sidebar-brand">
           <div className="sidebar-logo">N</div>
           <div>
-            <h2>NEXORA</h2>
+            <h2>FX WALLET</h2>
             <span>Dashboard</span>
           </div>
         </div>
@@ -124,7 +124,7 @@ export default function Layout({ children }: { children?: ReactNode }) {
           style={{ cursor: "pointer" }}
           onClick={(e) => {
             e.stopPropagation();
-            window.open("https://t.me/NEXORA31", "_blank", "noopener,noreferrer");
+            window.open("https://t.me/FXwallet70", "_blank", "noopener,noreferrer");
           }}
           title="Contact support on Telegram"
         >

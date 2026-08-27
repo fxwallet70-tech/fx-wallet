@@ -236,7 +236,7 @@ export default function Wallet() {
         <span style={{ color: "#fff", fontSize: 14, fontWeight: 700 }}>
           View Payment History
         </span>
-        <span style={{ color: "#2563eb", fontSize: 28, fontWeight: 500 }}>›</span>
+        <span style={{ color: "#8B2635", fontSize: 28, fontWeight: 500 }}>›</span>
       </Link>
 
       {/* Transactions */}
@@ -268,9 +268,9 @@ export default function Wallet() {
                   marginRight: 12,
                   flexShrink: 0,
                   background: isMaturityReturn
-                    ? "#14532d"
+                    ? "#B8860B"
                     : isCredit
-                    ? "rgba(34,197,94,0.15)"
+                    ? "rgba(212,175,55,0.15)"
                     : "rgba(239,68,68,0.15)",
                 }}
               >
@@ -278,7 +278,7 @@ export default function Wallet() {
                   style={{
                     fontSize: 21,
                     fontWeight: 800,
-                    color: isCredit ? "#22c55e" : "#ef4444",
+                    color: isCredit ? "#D4AF37" : "#ef4444",
                   }}
                 >
                   {getTransactionSymbol(tx)}
@@ -298,7 +298,7 @@ export default function Wallet() {
                 >
                   {tx.description || "Wallet transaction"}
                 </div>
-                <div style={{ color: "#64748b", fontSize: 11, marginTop: 5 }}>
+                <div style={{ color: "rgba(255, 255, 255, 0.18)", fontSize: 11, marginTop: 5 }}>
                   {formatDate(tx.createdAt)}
                 </div>
               </div>

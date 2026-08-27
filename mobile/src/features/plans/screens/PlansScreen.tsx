@@ -30,7 +30,6 @@ import FadeInView from '../../../shared/components/animations/FadeInView';
 import PressableScale from '../../../shared/components/animations/PressableScale';
 import HoverWiggle from '../../../shared/components/animations/HoverWiggle';
 import GlassCard from '../../../shared/components/Card/GlassCard';
-import NativeAdCard from '../../../shared/components/Ads/NativeAdCard';
 import {purchaseUsingWallet} from '../services/planService';
 import {getWalletSummary} from '../../wallet/services/walletService';
 import {
@@ -501,8 +500,6 @@ const PlansScreen = () => {
               Select the plan that works best
               for you.
             </Text>
-
-            <NativeAdCard />
           </View>
         }
         ListEmptyComponent={
@@ -821,14 +818,12 @@ export default PlansScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor:
-      Theme.colors.background,
+    backgroundColor: 'transparent',
   },
 
   centerContainer: {
     flex: 1,
-    backgroundColor:
-      Theme.colors.background,
+    backgroundColor: 'transparent',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 25,
@@ -888,12 +883,12 @@ const styles = StyleSheet.create({
   },
 
   planCard: {
-    backgroundColor: Theme.colors.glass,
+    backgroundColor: 'rgba(255,255,255,0.32)',
     borderRadius: 20,
     padding: 20,
     marginBottom: 16,
-    borderWidth: 1.5,
-    borderColor: Theme.colors.glassBorder,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.40)',
     ...Theme.shadows.card,
   },
 
@@ -904,16 +899,16 @@ const styles = StyleSheet.create({
   },
 
   categoryBadge: {
-    backgroundColor: 'rgba(255,255,255,0.5)',
+    backgroundColor: 'rgba(255,255,255,0.20)',
     borderRadius: 20,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderWidth: 1.5,
-    borderColor: Theme.colors.glassBorder,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.40)',
   },
 
   categoryText: {
-    color: Theme.colors.primaryDeep,
+    color: Theme.colors.text,
     fontSize: 12,
     fontWeight: '700',
   },
@@ -944,7 +939,7 @@ const styles = StyleSheet.create({
   },
 
   price: {
-    color: Theme.colors.primary,
+    color: Theme.colors.text,
     fontSize: 30,
     fontWeight: '800',
   },
@@ -970,7 +965,7 @@ const styles = StyleSheet.create({
   },
 
   returnAmount: {
-    color: '#16A34A',
+    color: Theme.colors.text,
     fontSize: 20,
     fontWeight: '800',
   },
@@ -985,7 +980,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.45)',
-    shadowColor: '#B3421E',
+    shadowColor: '#000000',
     shadowOffset: {width: 0, height: 8},
     shadowOpacity: 0.4,
     shadowRadius: 14,
@@ -1032,9 +1027,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: Theme.colors.card,
+    backgroundColor: '#090B09',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
+    borderWidth: 1.5,
+    borderColor: Theme.colors.border,
     paddingHorizontal: 22,
     paddingTop: 12,
     paddingBottom: 28,
@@ -1044,9 +1041,9 @@ const styles = StyleSheet.create({
     width: 44,
     height: 5,
     borderRadius: 3,
-    backgroundColor: Theme.colors.grey,
+    backgroundColor: 'rgba(255,255,255,0.4)',
     alignSelf: 'center',
-    opacity: 0.4,
+    opacity: 0.5,
     marginBottom: 16,
   },
 
@@ -1089,17 +1086,17 @@ const styles = StyleSheet.create({
   optionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: Theme.colors.glassBorder,
-    backgroundColor: '#FFF9EF',
+    backgroundColor: 'rgba(255,255,255,0.06)',
     borderRadius: 14,
     padding: 14,
     marginBottom: 12,
   },
 
   optionRowSelected: {
-    borderColor: Theme.colors.primary,
-    backgroundColor: '#FBE7D8',
+    borderColor: Theme.colors.secondary,
+    backgroundColor: Theme.colors.goldSoft,
   },
 
   optionRowDisabled: {
@@ -1118,7 +1115,7 @@ const styles = StyleSheet.create({
   },
 
   radioOuterSelected: {
-    borderColor: Theme.colors.primary,
+    borderColor: Theme.colors.secondary,
   },
 
   radioInner: {
@@ -1133,21 +1130,19 @@ const styles = StyleSheet.create({
   },
 
   optionLabel: {
-    // Option rows have a light/cream background, so we need dark text
-    // to be visible (near-white text was invisible on the light row).
-    color: '#111827',
+    color: Theme.colors.text,
     fontSize: 15,
     fontWeight: '700',
   },
 
   optionSubLabel: {
-    color: '#4B5563',
+    color: Theme.colors.grey,
     fontSize: 12,
     marginTop: 2,
   },
 
   optionWarning: {
-    color: '#DC2626',
+    color: Theme.colors.danger,
     fontSize: 12,
     marginTop: 2,
   },
@@ -1160,8 +1155,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.45)',
-    shadowColor: '#B3421E',
+    borderColor: 'rgba(255,255,255,0.35)',
+    shadowColor: Theme.colors.accentShadow,
     shadowOffset: {width: 0, height: 8},
     shadowOpacity: 0.4,
     shadowRadius: 14,
@@ -1169,7 +1164,7 @@ const styles = StyleSheet.create({
   },
 
   continueButtonText: {
-    color: '#FFFFFF',
+    color: Theme.colors.onPrimary,
     fontSize: 16,
     fontWeight: '800',
   },
@@ -1193,7 +1188,7 @@ const styles = StyleSheet.create({
   },
 
   cdmReference: {
-    color: Theme.colors.primary,
+    color: Theme.colors.text,
     fontSize: 13,
     fontWeight: '700',
     marginBottom: 10,
@@ -1218,7 +1213,7 @@ const styles = StyleSheet.create({
     backgroundColor: Theme.colors.inputBg,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: Theme.colors.hairline,
+    borderColor: 'rgba(212,175,55,0.55)',
     paddingHorizontal: 14,
     height: 48,
     marginBottom: 12,
@@ -1232,8 +1227,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
     borderWidth: 1.5,
-    borderColor: 'rgba(110,66,22,0.85)',
-    backgroundColor: 'rgba(255,250,240,0.35)',
+    borderColor: Theme.colors.glassBorder,
+    backgroundColor: 'rgba(255,255,255,0.06)',
   },
 
   cdmPickText: {
