@@ -1,15 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { getPlans, subscribePlan, createRazorpayOrder, verifyRazorpayPayment } from "../../services/planService";
-import { getCdmSetting, submitCdmRequest } from "../../services/cdmService";
+import { getPlans, subscribePlan } from "../../services/planService";
+import { submitCdmRequest } from "../../services/cdmService";
 import type { Plan } from "../../services/planService";
-import { useAuth } from "../../context/AuthContext";
-
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
 
 function TiltCard({ children }: { children: React.ReactNode }) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -44,7 +37,6 @@ function TiltCard({ children }: { children: React.ReactNode }) {
 }
 
 export default function Plans() {
-  const { user } = useAuth();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -54,8 +46,6 @@ export default function Plans() {
   const [paymentMethod, setPaymentMethod] = useState<"Wallet" | "CDM">("Wallet");
   const [subscribeError, setSubscribeError] = useState("");
 
-  // CDM State
-  const [cdmSetting, setCdmSetting] = useState<any>(null);
   const [proofImage, setProofImage] = useState<File | null>(null);
   const [transactionId, setTransactionId] = useState("");
   const [isSubmittingCdm, setIsSubmittingCdm] = useState(false);
@@ -81,14 +71,6 @@ export default function Plans() {
     setPaymentMethod("Wallet");
     setSubscribeError("");
     setShowModal(true);
-
-    // Load CDM context
-    try {
-      const cdmRes = await getCdmSetting();
-      setCdmSetting(cdmRes.data);
-    } catch (err) {
-      console.error("Failed to load CDM setting");
-    }
   };
 
   const handleSubscribe = async () => {
