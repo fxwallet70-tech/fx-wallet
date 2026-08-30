@@ -30,3 +30,8 @@ export const updateCdmRequestStatus = async (id: string, status: string) => {
   const res = await api.put(`/cdm/admin/${id}`, { status });
   return res.data;
 };
+
+export const deleteCdmRequest = async (id: string) => {
+  const res = await api.delete(`/cdm/admin/${id}`);
+  return res.data;
+};

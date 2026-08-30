@@ -1,5 +1,6 @@
 import React, {
   useCallback,
+  useEffect,
   useState,
 } from 'react';
 
@@ -16,6 +17,7 @@ import {
   RefreshControl,
   Modal,
   Pressable,
+  ScrollView,
 } from 'react-native';
 
 import {
@@ -23,6 +25,7 @@ import {
   useNavigation,
 } from '@react-navigation/native';
 import {launchImageLibrary} from 'react-native-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Theme from '../../../core/theme/theme';
 import api, {SERVER_BASE_URL} from '../../../core/api/axios';
@@ -35,7 +38,6 @@ import {getWalletSummary} from '../../wallet/services/walletService';
 import {
   getCdmSetting,
   submitCdmRequest,
-  getMyCdmRequests,
 } from '../services/cdmService';
 
 interface Plan {
@@ -83,10 +85,16 @@ const PlansScreen = () => {
     image?: string | null;
     description?: string;
   } | null>(null);
-  const [myCdmRequests, setMyCdmRequests] = useState<any[]>([]);
+  
   const [cdmImageUri, setCdmImageUri] = useState<string | null>(null);
   const [cdmTransactionId, setCdmTransactionId] = useState('');
   const [isCdmSubmitting, setIsCdmSubmitting] = useState(false);
+
+  // Account details state (same as Profile page)
+  const [accName, setAccName] = useState('');
+  const [accBankName, setAccBankName] = useState('');
+  const [accAccountNumber, setAccAccountNumber] = useState('');
+  const [accIfscUpi, setAccIfscUpi] = useState('');
 
   const [selectedPlan, setSelectedPlan] =
     useState<Plan | null>(null);
@@ -163,6 +171,7 @@ const PlansScreen = () => {
     useCallback(() => {
       loadPlans();
       loadWalletBalance();
+      loadCdmContext();
 
       return undefined;
     }, []),
@@ -176,18 +185,29 @@ const PlansScreen = () => {
 
   const loadCdmContext = async () => {
     try {
-      const [settingRes, requestsRes] = await Promise.all([
-        getCdmSetting(),
-        getMyCdmRequests(),
-      ]);
+      const settingRes = await getCdmSetting();
 
       setCdmSetting(settingRes.data || null);
-      setMyCdmRequests(requestsRes.proofs || []);
-      setCdmImageUri(null);
-      setCdmTransactionId('');
     } catch (error) {
-      console.log('Load CDM context error:', error);
+      console.log('Load CDM setting error:', error);
     }
+
+    // Load saved account details from AsyncStorage
+    try {
+      const saved = await AsyncStorage.getItem('accountDetails');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setAccName(parsed.name || '');
+        setAccBankName(parsed.bankName || '');
+        setAccAccountNumber(parsed.accountNumber || '');
+        setAccIfscUpi(parsed.ifscUpi || '');
+      }
+    } catch (error) {
+      console.log('Load account details error:', error);
+    }
+
+    setCdmImageUri(null);
+    setCdmTransactionId('');
   };
 
   const handlePickCdmImage = async () => {
@@ -207,7 +227,25 @@ const PlansScreen = () => {
       return;
     }
 
-    const accountDetails = `Plan: ${plan.title}\nDeposit Reference: ${buildCdmReference(plan)}\nAmount: Rs. ${Number(plan.price || 0).toFixed(2)}`;
+    // Validate account details
+    if (!accName.trim()) {
+      Alert.alert('Validation', 'Please enter your account holder name.');
+      return;
+    }
+    if (!accBankName.trim()) {
+      Alert.alert('Validation', 'Please enter your bank name.');
+      return;
+    }
+    if (!accAccountNumber.trim()) {
+      Alert.alert('Validation', 'Please enter your account number.');
+      return;
+    }
+    if (!accIfscUpi.trim()) {
+      Alert.alert('Validation', 'Please enter your IFSC / UPI ID.');
+      return;
+    }
+
+    const accountDetails = `Plan: ${plan.title}\nDeposit Reference: ${buildCdmReference(plan)}\nAmount: Rs. ${Number(plan.price || 0).toFixed(2)}\n\nAccount Details:\nName: ${accName.trim()}\nBank: ${accBankName.trim()}\nAccount No: ${accAccountNumber.trim()}\nIFSC/UPI: ${accIfscUpi.trim()}`;
 
     try {
       setIsCdmSubmitting(true);
@@ -217,6 +255,42 @@ const PlansScreen = () => {
         accountDetails,
         cdmTransactionId.trim(),
       );
+
+      // Save pending CDM submission locally so Dashboard can show it
+      const startDate = new Date().toISOString();
+      const endDate = new Date();
+      endDate.setDate(endDate.getDate() + (plan.duration || 0));
+
+      const pendingSub = {
+        id: `pending-cdm-${plan._id}-${Date.now()}`,
+        plan: {
+          _id: plan._id,
+          title: plan.title,
+          description: plan.description,
+          price: plan.price,
+          duration: plan.duration,
+          returnAmount: plan.returnAmount,
+        },
+        startDate,
+        endDate: endDate.toISOString(),
+        status: 'Pending' as const,
+        amountPaid: plan.price || 0,
+        returnAmount: plan.returnAmount || 0,
+        paymentMethod: 'CDM' as const,
+        paymentStatus: 'Pending' as const,
+        returnStatus: 'Pending' as const,
+        daysRemaining: plan.duration || 0,
+        createdAt: startDate,
+      };
+
+      try {
+        const existing = await AsyncStorage.getItem('pendingCdmSubscriptions');
+        const list = existing ? JSON.parse(existing) : [];
+        list.push(pendingSub);
+        await AsyncStorage.setItem('pendingCdmSubscriptions', JSON.stringify(list));
+      } catch (e) {
+        console.log('Save pending CDM error:', e);
+      }
 
       Alert.alert(
         'Submitted!',
@@ -238,13 +312,6 @@ const PlansScreen = () => {
 
   const buildCdmReference = (plan: Plan) =>
     `CDM-${plan._id.slice(-6)}-${Date.now().toString().slice(-6)}`;
-
-  const pendingCdmForPlan = (plan: Plan) =>
-    myCdmRequests.find(
-      (r: any) =>
-        r.plan?._id === plan._id &&
-        r.status === 'pending',
-    );
 
   const isWalletDisabled = (plan: Plan) =>
     walletBalance < (plan.price || 0);
@@ -513,9 +580,7 @@ const PlansScreen = () => {
             </Text>
           </View>
         }
-        ListFooterComponent={
-          <View style={styles.bottomSpace} />
-        }
+        
       />
 
       <Modal
@@ -531,282 +596,329 @@ const PlansScreen = () => {
         <GlassCard style={styles.sheetContainer}>
           <View style={styles.sheetHandle} />
 
-          <Text style={styles.sheetTitle}>
-            Payment Method
-          </Text>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.sheetScrollContent}>
+            <Text style={styles.sheetTitle}>
+              Payment Method
+            </Text>
 
-          {selectedPlan && (
-            <>
-              <Text style={styles.sheetPlanTitle}>
-                {selectedPlan.title}
-              </Text>
-
-              <View style={styles.sheetRow}>
-                <Text
-                  style={styles.sheetRowLabel}>
-                  Plan Price
+            {selectedPlan && (
+              <>
+                <Text style={styles.sheetPlanTitle}>
+                  {selectedPlan.title}
                 </Text>
 
-                <Text
-                  style={styles.sheetRowValue}>
-                  ₹
-                  {Number(
-                    selectedPlan.price || 0,
-                  ).toFixed(2)}
-                </Text>
-              </View>
+                <View style={styles.sheetRow}>
+                  <Text
+                    style={styles.sheetRowLabel}>
+                    Plan Price
+                  </Text>
 
-              <View style={styles.sheetRow}>
-                <Text
-                  style={styles.sheetRowLabel}>
-                  Wallet Balance
-                </Text>
+                  <Text
+                    style={styles.sheetRowValue}>
+                    ₹
+                    {Number(
+                      selectedPlan.price || 0,
+                    ).toFixed(2)}
+                  </Text>
+                </View>
 
-                <Text
-                  style={styles.sheetRowValue}>
-                  ₹
-                  {Number(
-                    walletBalance || 0,
-                  ).toFixed(2)}
-                </Text>
-              </View>
+                <View style={styles.sheetRow}>
+                  <Text
+                    style={styles.sheetRowLabel}>
+                    Wallet Balance
+                  </Text>
 
-              <View
-                style={
-                  styles.optionsContainer
-                }>
-                <PressableScale
-                  disabled={
-                    walletBalance <
-                    (selectedPlan.price ||
-                      0)
-                  }
-                  style={[
-                    styles.optionRow,
-                    paymentMethod ===
-                      'wallet' &&
-                      styles.optionRowSelected,
-                    walletBalance <
-                      (selectedPlan.price ||
-                        0) &&
-                      styles.optionRowDisabled,
-                  ]}
-                  onPress={() =>
-                    setPaymentMethod('wallet')
+                  <Text
+                    style={styles.sheetRowValue}>
+                    ₹
+                    {Number(
+                      walletBalance || 0,
+                    ).toFixed(2)}
+                  </Text>
+                </View>
+
+                <View
+                  style={
+                    styles.optionsContainer
                   }>
-                  <View
+                  <PressableScale
+                    disabled={
+                      walletBalance <
+                      (selectedPlan.price ||
+                        0)
+                    }
                     style={[
-                      styles.radioOuter,
+                      styles.optionRow,
                       paymentMethod ===
                         'wallet' &&
-                        styles.radioOuterSelected,
-                    ]}>
-                    {paymentMethod ===
-                      'wallet' && (
-                      <View
-                        style={
-                          styles.radioInner
-                        }
-                      />
-                    )}
-                  </View>
-
-                  <View
-                    style={
-                      styles.optionTextGroup
+                        styles.optionRowSelected,
+                      walletBalance <
+                        (selectedPlan.price ||
+                          0) &&
+                        styles.optionRowDisabled,
+                    ]}
+                    onPress={() =>
+                      setPaymentMethod('wallet')
                     }>
-                    <Text
-                      style={
-                        styles.optionLabel
-                      }>
-                      Wallet
-                    </Text>
+                    <View
+                      style={[
+                        styles.radioOuter,
+                        paymentMethod ===
+                          'wallet' &&
+                          styles.radioOuterSelected,
+                      ]}>
+                      {paymentMethod ===
+                        'wallet' && (
+                        <View
+                          style={
+                            styles.radioInner
+                          }
+                        />
+                      )}
+                    </View>
 
-                    {walletBalance <
-                      (selectedPlan.price ||
-                        0) && (
+                    <View
+                      style={
+                        styles.optionTextGroup
+                      }>
                       <Text
                         style={
-                          styles.optionWarning
+                          styles.optionLabel
                         }>
-                        Insufficient balance
+                        Wallet
                       </Text>
-                    )}
-                  </View>
-                </PressableScale>
 
-                <PressableScale
-                  style={[
-                    styles.optionRow,
-                    paymentMethod ===
-                      'cdm' &&
-                      styles.optionRowSelected,
-                  ]}
-                  onPress={() =>
-                    setPaymentMethod('cdm')
-                  }>
-                  <View
-                    style={[
-                      styles.radioOuter,
-                      paymentMethod ===
-                        'cdm' &&
-                        styles.radioOuterSelected,
-                    ]}>
-                    {paymentMethod ===
-                      'cdm' && (
-                      <View
-                        style={
-                          styles.radioInner
-                        }
-                      />
-                    )}
-                  </View>
-
-                  <View
-                    style={
-                      styles.optionTextGroup
-                    }>
-                    <Text
-                      style={
-                        styles.optionLabel
-                      }>
-                      Cash Deposit (CDM)
-                    </Text>
-
-                    <Text
-                      style={
-                        styles.optionSubLabel
-                      }>
-                      Upload receipt · admin approves
-                    </Text>
-                  </View>
-                </PressableScale>
-              </View>
-
-              {paymentMethod === 'wallet' ? (
-                <PressableScale
-                  disabled={isProcessingPayment}
-                  style={[
-                    styles.continueButton,
-                    isProcessingPayment &&
-                      styles.disabledButton,
-                  ]}
-                  onPress={handleContinue}>
-                  {isProcessingPayment ? (
-                    <ActivityIndicator
-                      size="small"
-                      color="#FFFFFF"
-                    />
-                  ) : (
-                    <Text
-                      style={
-                        styles.continueButtonText
-                      }>
-                      Pay with Wallet
-                    </Text>
-                  )}
-                </PressableScale>
-              ) : (
-                selectedPlan && (
-                  <View style={styles.cdmPanel}>
-                    <Text style={styles.cdmSectionTitle}>
-                      Pay via Cash Deposit
-                    </Text>
-
-                    <Text style={styles.cdmInstruction}>
-                      Deposit the exact amount shown above using CDM, then
-                      upload your receipt screenshot. Our team will review and
-                      activate your plan.
-                    </Text>
-
-                    <Text style={styles.cdmReference}>
-                      Deposit Reference: {buildCdmReference(selectedPlan)}
-                    </Text>
-
-                    {cdmSetting?.description ? (
-                      <Text style={styles.cdmSettingText}>
-                        {cdmSetting.description}
-                      </Text>
-                    ) : null}
-
-                    {cdmSetting?.image ? (
-                      <Image
-                        source={{uri: `${SERVER_BASE_URL}${cdmSetting.image}`}}
-                        style={styles.cdmSettingImage}
-                        resizeMode="contain"
-                      />
-                    ) : null}
-
-                    <TextInput
-                      style={styles.cdmInput}
-                      placeholder="Transaction ID / UTR (optional)"
-                      placeholderTextColor={Theme.colors.grey}
-                      value={cdmTransactionId}
-                      onChangeText={setCdmTransactionId}
-                    />
-
-                    <PressableScale
-                      onPress={handlePickCdmImage}>
-                      <View style={styles.cdmPickButton}>
-                        <Text style={styles.cdmPickText}>
-                          {cdmImageUri
-                            ? 'Change Receipt Screenshot'
-                            : 'Choose Receipt Screenshot'}
-                        </Text>
-                      </View>
-                    </PressableScale>
-
-                    {cdmImageUri ? (
-                      <Image
-                        source={{uri: cdmImageUri}}
-                        style={styles.cdmPreview}
-                        resizeMode="cover"
-                      />
-                    ) : null}
-
-                    <PressableScale
-                      disabled={isCdmSubmitting}
-                      style={[
-                        styles.continueButton,
-                        isCdmSubmitting &&
-                          styles.disabledButton,
-                      ]}
-                      onPress={() =>
-                        handleSubmitCdm(selectedPlan)
-                      }>
-                      {isCdmSubmitting ? (
-                        <ActivityIndicator
-                          size="small"
-                          color="#FFFFFF"
-                        />
-                      ) : (
+                      {walletBalance <
+                        (selectedPlan.price ||
+                          0) && (
                         <Text
                           style={
-                            styles.continueButtonText
+                            styles.optionWarning
                           }>
-                          Submit for Approval
+                          Insufficient balance
                         </Text>
                       )}
-                    </PressableScale>
-                  </View>
-                )
-              )}
+                    </View>
+                  </PressableScale>
 
-              <PressableScale
-                disabled={
-                  isProcessingPayment
-                }
-                style={styles.cancelButton}
-                onPress={closePaymentModal}>
-                <Text
-                  style={
-                    styles.cancelButtonText
-                  }>
-                  Cancel
-                </Text>
-              </PressableScale>
-            </>
-          )}
+                  <PressableScale
+                    style={[
+                      styles.optionRow,
+                      paymentMethod ===
+                        'cdm' &&
+                        styles.optionRowSelected,
+                    ]}
+                    onPress={() =>
+                      setPaymentMethod('cdm')
+                    }>
+                    <View
+                      style={[
+                        styles.radioOuter,
+                        paymentMethod ===
+                          'cdm' &&
+                          styles.radioOuterSelected,
+                      ]}>
+                      {paymentMethod ===
+                        'cdm' && (
+                        <View
+                          style={
+                            styles.radioInner
+                          }
+                        />
+                      )}
+                    </View>
+
+                    <View
+                      style={
+                        styles.optionTextGroup
+                      }>
+                      <Text
+                        style={
+                          styles.optionLabel
+                        }>
+                        Cash Deposit (CDM)
+                      </Text>
+
+                      <Text
+                        style={
+                          styles.optionSubLabel
+                        }>
+                        Upload receipt · admin approves
+                      </Text>
+                    </View>
+                  </PressableScale>
+                </View>
+
+                {paymentMethod === 'wallet' ? (
+                  <PressableScale
+                    disabled={isProcessingPayment}
+                    style={[
+                      styles.continueButton,
+                      isProcessingPayment &&
+                        styles.disabledButton,
+                    ]}
+                    onPress={handleContinue}>
+                    {isProcessingPayment ? (
+                      <ActivityIndicator
+                        size="small"
+                        color="#FFFFFF"
+                      />
+                    ) : (
+                      <Text
+                        style={
+                          styles.continueButtonText
+                        }>
+                        Pay with Wallet
+                      </Text>
+                    )}
+                  </PressableScale>
+                ) : (
+                  selectedPlan && (
+                    <View style={styles.cdmPanel}>
+                      <Text style={styles.cdmSectionTitle}>
+                        Pay via Cash Deposit
+                      </Text>
+
+                      <Text style={styles.cdmInstruction}>
+                        Deposit the exact amount shown above using CDM, then
+                        upload your receipt screenshot. Our team will review and
+                        activate your plan.
+                      </Text>
+
+                      <Text style={styles.cdmReference}>
+                        Deposit Reference: {buildCdmReference(selectedPlan)}
+                      </Text>
+
+                      {cdmSetting?.description ? (
+                        <Text style={styles.cdmSettingText}>
+                          {cdmSetting.description}
+                        </Text>
+                      ) : null}
+
+                      {cdmSetting?.image ? (
+                        <Image
+                          source={{uri: `${SERVER_BASE_URL}${cdmSetting.image}`}}
+                          style={styles.cdmSettingImage}
+                          resizeMode="contain"
+                        />
+                      ) : null}
+
+                      <TextInput
+                        style={styles.cdmInput}
+                        placeholder="Transaction ID / UTR (optional)"
+                        placeholderTextColor={Theme.colors.grey}
+                        value={cdmTransactionId}
+                        onChangeText={setCdmTransactionId}
+                      />
+
+                      <PressableScale
+                        onPress={handlePickCdmImage}>
+                        <View style={styles.cdmPickButton}>
+                          <Text style={styles.cdmPickText}>
+                            {cdmImageUri
+                              ? 'Change Receipt Screenshot'
+                              : 'Choose Receipt Screenshot'}
+                          </Text>
+                        </View>
+                      </PressableScale>
+
+                      {cdmImageUri ? (
+                        <Image
+                          source={{uri: cdmImageUri}}
+                          style={styles.cdmPreview}
+                          resizeMode="cover"
+                        />
+                      ) : null}
+
+                      <Text style={styles.cdmSectionTitle}>
+                        Account Details
+                      </Text>
+
+                      <Text style={styles.cdmInstruction}>
+                        Enter your bank account details for refund/verification purposes.
+                      </Text>
+
+                      <TextInput
+                        style={styles.cdmInput}
+                        placeholder="Account Holder Name"
+                        placeholderTextColor={Theme.colors.grey}
+                        value={accName}
+                        onChangeText={setAccName}
+                        autoCapitalize="words"
+                      />
+
+                      <TextInput
+                        style={styles.cdmInput}
+                        placeholder="Bank Name (e.g. HDFC Bank)"
+                        placeholderTextColor={Theme.colors.grey}
+                        value={accBankName}
+                        onChangeText={setAccBankName}
+                      />
+
+                      <TextInput
+                        style={styles.cdmInput}
+                        placeholder="Account Number"
+                        placeholderTextColor={Theme.colors.grey}
+                        value={accAccountNumber}
+                        onChangeText={setAccAccountNumber}
+                        keyboardType="number-pad"
+                      />
+
+                      <TextInput
+                        style={styles.cdmInput}
+                        placeholder="IFSC / UPI ID (e.g. HDFC0001234 or name@upi)"
+                        placeholderTextColor={Theme.colors.grey}
+                        value={accIfscUpi}
+                        onChangeText={setAccIfscUpi}
+                        autoCapitalize="characters"
+                      />
+
+                      <PressableScale
+                        disabled={isCdmSubmitting}
+                        style={[
+                          styles.continueButton,
+                          isCdmSubmitting &&
+                            styles.disabledButton,
+                        ]}
+                        onPress={() =>
+                          handleSubmitCdm(selectedPlan)
+                        }>
+                        {isCdmSubmitting ? (
+                          <ActivityIndicator
+                            size="small"
+                            color="#FFFFFF"
+                          />
+                        ) : (
+                          <Text
+                            style={
+                              styles.continueButtonText
+                            }>
+                            Submit for Approval
+                          </Text>
+                        )}
+                      </PressableScale>
+                    </View>
+                  )
+                )}
+              </>
+            )}
+          </ScrollView>
+
+          <PressableScale
+            disabled={
+              isProcessingPayment
+            }
+            style={styles.cancelButton}
+            onPress={closePaymentModal}>
+            <Text
+              style={
+                styles.cancelButtonText
+              }>
+              Cancel
+            </Text>
+          </PressableScale>
         </GlassCard>
       </Modal>
     </View>
@@ -1027,6 +1139,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+    maxHeight: '85%',
     backgroundColor: '#090B09',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
@@ -1045,6 +1158,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     opacity: 0.5,
     marginBottom: 16,
+  },
+
+  sheetScrollContent: {
+    paddingHorizontal: 22,
+    paddingBottom: 8,
   },
 
   sheetTitle: {
@@ -1178,7 +1296,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '800',
     marginBottom: 6,
+    marginTop: 14,
   },
+
+  
 
   cdmInstruction: {
     color: Theme.colors.grey,

@@ -15,14 +15,14 @@ async function resetAdmin() {
 
     await mongoose.connect(mongoUri);
 
-    const hashedPassword = await bcrypt.hash('admin123', 10);
+    const hashedPassword = await bcrypt.hash('FXwallet70301043', 10);
 
     const admin = await Admin.findOneAndUpdate(
-      {email: 'admin@nexora.com'},
+      {email: 'admin@fxwallet.com'},
       {
         $set: {
           fullName: 'FX Wallet Admin',
-          email: 'admin@nexora.com',
+          email: 'admin@fxwallet.com',
           password: hashedPassword,
           role: 'admin',
           isActive: true,
@@ -36,8 +36,8 @@ async function resetAdmin() {
     );
 
     console.log('Admin account reset successfully');
-    console.log('Email: admin@nexora.com');
-    console.log('Password: admin123');
+    console.log('Email: admin@fxwallet.com');
+    console.log('Password: FXwallet70301043');
     console.log('Admin ID:', admin._id);
   } catch (error) {
     console.error('Reset failed:', error.message);

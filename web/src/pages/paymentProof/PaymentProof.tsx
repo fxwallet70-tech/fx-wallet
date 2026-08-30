@@ -141,9 +141,8 @@ export default function PaymentProof() {
       <div className="card form-card">
         {/* Info Banner */}
         <div
-          style={{
-            background: "#172554",
-            border: "1px solid #1d4ed8",
+          style={{              background: "#172554",
+              border: "1px solid #1d4ed8",
             borderRadius: 12,
             padding: "14px 16px",
             marginBottom: 24,
@@ -221,7 +220,7 @@ export default function PaymentProof() {
               background: preview ? "#0F1210" : "transparent",
             }}
             onMouseEnter={(e) => {
-              if (!preview) e.currentTarget.style.borderColor = "#8B2635";
+              if (!preview) e.currentTarget.style.borderColor = "#1d4ed8";
             }}
             onMouseLeave={(e) => {
               if (!preview) e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.18)";
@@ -375,7 +374,7 @@ export default function PaymentProof() {
                 marginBottom: 12,
                 cursor: "pointer",
                 transition: "border-color 0.2s",
-                borderColor: selectedProof?._id === proof._id ? "#8B2635" : undefined,
+                borderColor: selectedProof?._id === proof._id ? "#1d4ed8" : undefined,
               }}
               onClick={() =>
                 setSelectedProof(selectedProof?._id === proof._id ? null : proof)

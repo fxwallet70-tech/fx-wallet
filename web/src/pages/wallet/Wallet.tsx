@@ -236,7 +236,7 @@ export default function Wallet() {
         <span style={{ color: "#fff", fontSize: 14, fontWeight: 700 }}>
           View Payment History
         </span>
-        <span style={{ color: "#8B2635", fontSize: 28, fontWeight: 500 }}>›</span>
+        <span style={{ color: "#1d4ed8", fontSize: 28, fontWeight: 500 }}>›</span>
       </Link>
 
       {/* Transactions */}

@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: 'rgba(15,25,50,0.88)',
+    backgroundColor: 'rgba(17,28,48,0.9)',
     borderRadius: 24,
     borderWidth: 1,
     borderColor: Theme.colors.glassBorder,

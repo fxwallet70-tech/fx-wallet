@@ -14,6 +14,7 @@ import {
 
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Theme from '../../../core/theme/theme';
 import api from '../../../core/api/axios';
 import FadeInView from '../../../shared/components/animations/FadeInView';
@@ -58,6 +59,7 @@ interface CurrentSubscription {
   endDate: string;
 
   status:
+    | 'Pending'
     | 'Active'
     | 'Expired'
     | 'Cancelled';
@@ -173,6 +175,7 @@ const DashboardScreen = () => {
 
   const [errorMessage, setErrorMessage] =
     useState('');
+  const [pendingCdmSubs, setPendingCdmSubs] = useState<CurrentSubscription[]>([]);
 
   const loadDashboard = async (
     showLoader = true,
@@ -196,6 +199,8 @@ const DashboardScreen = () => {
         setDashboardData(
           response.data.data,
         );
+        // Clean up pending CDM entries that are now approved
+        syncPendingCdm(response.data.data.subscriptions || []);
       } else {
         setErrorMessage(
           response.data.message ||
@@ -222,15 +227,53 @@ const DashboardScreen = () => {
   useFocusEffect(
     useCallback(() => {
       loadDashboard();
+      loadPendingCdm();
 
       return undefined;
     }, []),
   );
 
 
+  const loadPendingCdm = async () => {
+    try {
+      const stored = await AsyncStorage.getItem('pendingCdmSubscriptions');
+      if (stored) {
+        setPendingCdmSubs(JSON.parse(stored));
+      }
+    } catch (e) {
+      console.log('Load pending CDM error:', e);
+    }
+  };
+
+  // Clear pending CDM entries that now have a real subscription from backend
+  const syncPendingCdm = async (serverSubs: CurrentSubscription[]) => {
+    try {
+      const stored = await AsyncStorage.getItem('pendingCdmSubscriptions');
+      if (!stored) return;
+
+      const pendingList: CurrentSubscription[] = JSON.parse(stored);
+      if (pendingList.length === 0) return;
+
+      // Check which pending entries now have a real subscription (approved)
+      const serverPlanIds = serverSubs.map(s => s.plan?._id || s.plan?.id);
+      const stillPending = pendingList.filter(
+        p => !serverPlanIds.includes(p.plan?._id || p.plan?.id),
+      );
+
+      if (stillPending.length !== pendingList.length) {
+        // Some were approved — update AsyncStorage
+        await AsyncStorage.setItem('pendingCdmSubscriptions', JSON.stringify(stillPending));
+        setPendingCdmSubs(stillPending);
+      }
+    } catch (e) {
+      console.log('Sync pending CDM error:', e);
+    }
+  };
+
   const onRefresh = () => {
     setIsRefreshing(true);
     loadDashboard(false);
+    loadPendingCdm();
   };
 
   const formatCurrency = (
@@ -354,8 +397,15 @@ const DashboardScreen = () => {
   const wallet =
     dashboardData?.wallet;
 
-  const subscriptions =
+  const serverSubscriptions =
     dashboardData?.subscriptions || [];
+
+  // Merge server subs with local pending CDM subs (avoid duplicates)
+  const serverPlanIds = serverSubscriptions.map(s => s.plan?._id || s.plan?.id);
+  const uniquePending = pendingCdmSubs.filter(
+    p => !serverPlanIds.includes(p.plan?._id || p.plan?.id),
+  );
+  const subscriptions = [...uniquePending, ...serverSubscriptions];
 
   const recentTransactions =
     dashboardData?.recentTransactions || [];
@@ -510,24 +560,53 @@ const DashboardScreen = () => {
                   {subscription.plan?.title}
                 </Text>
 
-                <Text
-                  style={
-                    styles.subscriptionStatus
-                  }>
-                  {subscription.status}
-                </Text>
+                <View style={styles.statusRow}>
+                  <View style={[
+                    styles.statusBadge,
+                    subscription.status === 'Pending' && styles.pendingStatusBadge,
+                    subscription.status === 'Expired' && styles.expiredStatusBadge,
+                  ]}>
+                    <Text style={[
+                      styles.statusText,
+                      subscription.status === 'Pending' && styles.pendingStatusText,
+                      subscription.status === 'Expired' && styles.expiredStatusText,
+                    ]}>
+                      {subscription.status === 'Pending' ? '⏳ Pending Approval' : subscription.status}
+                    </Text>
+                  </View>
+                </View>
               </View>
 
-              <View style={styles.daysBadge}>
-                <Text style={styles.daysValue}>
-                  {subscription.daysRemaining}
-                </Text>
+              {subscription.status !== 'Pending' ? (
+                <View style={styles.daysBadge}>
+                  <Text style={styles.daysValue}>
+                    {subscription.daysRemaining}
+                  </Text>
 
-                <Text style={styles.daysText}>
-                  days left
-                </Text>
-              </View>
+                  <Text style={styles.daysText}>
+                    days left
+                  </Text>
+                </View>
+              ) : (
+                <View style={[styles.daysBadge, styles.pendingDaysBadge]}>
+                  <Text style={[styles.daysValue, styles.pendingDaysValue]}>
+                    ?
+                  </Text>
+
+                  <Text style={styles.daysText}>
+                    awaiting
+                  </Text>
+                </View>
+              )}
             </View>
+
+            {subscription.status === 'Pending' ? (
+              <View style={styles.pendingInfoBox}>
+                <Text style={styles.pendingInfoText}>
+                  ⏳ Your CDM payment is under review. Plan will activate once approved.
+                </Text>
+              </View>
+            ) : null}
 
             <View
               style={
@@ -565,22 +644,27 @@ const DashboardScreen = () => {
             </View>
 
             <View
-              style={
-                styles.returnStatusContainer
-              }>
+              style={[
+                styles.returnStatusContainer,
+                subscription.status === 'Pending' && styles.pendingReturnContainer,
+              ]}>
               <Text
-                style={
-                  styles.returnStatusText
-                }>
-                {getReturnStatusLabel(
-                  subscription.returnStatus,
-                )}
+                style={[
+                  styles.returnStatusText,
+                  subscription.status === 'Pending' && styles.pendingReturnStatusText,
+                ]}>
+                {subscription.status === 'Pending'
+                  ? '⏳ Waiting for Approval'
+                  : getReturnStatusLabel(
+                      subscription.returnStatus,
+                    )}
               </Text>
 
               <Text
-                style={
-                  styles.expiryDateText
-                }>
+                style={[
+                  styles.expiryDateText,
+                  subscription.status === 'Pending' && styles.pendingExpiryDateText,
+                ]}>
                 {formatDate(
                   subscription.endDate,
                 )}
@@ -838,7 +922,7 @@ export default DashboardScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'transparent',
+    backgroundColor: 'rgba(6, 11, 22, 0.85)',
   },
 
   content: {
@@ -1031,6 +1115,7 @@ subscriptionCard: {
     backgroundColor: 'rgba(255,255,255,0.15)',
     borderRadius: 18,
     padding: 18,
+    marginBottom: 14,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
     backdropFilter: 'blur(20px) saturate(1.5)',
@@ -1061,23 +1146,23 @@ subscriptionCard: {
   },
 
   daysBadge: {
-    backgroundColor: 'rgba(255,255,255,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.25)',
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 9,
     alignItems: 'center',
     borderWidth: 1.5,
-    borderColor: Theme.colors.border,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
 
   daysValue: {
-    color: Theme.colors.primary,
+    color: '#FFFFFF',
     fontSize: 19,
     fontWeight: '800',
   },
 
   daysText: {
-    color: Theme.colors.grey,
+    color: 'rgba(255,255,255,0.8)',
     fontSize: 10,
     marginTop: 2,
   },
@@ -1117,24 +1202,37 @@ subscriptionCard: {
   },
 
   returnStatusContainer: {
-    backgroundColor: 'rgba(255,255,255,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.2)',
     borderRadius: 11,
     padding: 11,
     marginTop: 15,
     flexDirection: 'row',
     justifyContent: 'space-between',
     borderWidth: 1.5,
-    borderColor: Theme.colors.border,
+    borderColor: 'rgba(255,255,255,0.15)',
   },
 
   returnStatusText: {
-    color: Theme.colors.primary,
+    color: '#FFFFFF',
     fontSize: 11,
     fontWeight: '700',
   },
 
+  pendingReturnContainer: {
+    backgroundColor: 'rgba(232, 163, 61, 0.15)',
+    borderColor: 'rgba(232, 163, 61, 0.4)',
+  },
+
+  pendingReturnStatusText: {
+    color: '#E8A33D',
+  },
+
+  pendingExpiryDateText: {
+    color: '#C4903A',
+  },
+
   expiryDateText: {
-    color: Theme.colors.grey,
+    color: 'rgba(255,255,255,0.75)',
     fontSize: 11,
   },
 
@@ -1261,7 +1359,69 @@ subscriptionCard: {
     color: '#DC2626',
   },
 
-noPlanCard: {
+statusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+  },
+
+  statusBadge: {
+    backgroundColor: 'rgba(22,163,74,0.12)',
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(22,163,74,0.25)',
+  },
+
+  statusText: {
+    color: '#16A34A',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+
+  pendingStatusBadge: {
+    backgroundColor: 'rgba(232, 163, 61, 0.12)',
+    borderColor: 'rgba(232, 163, 61, 0.25)',
+  },
+
+  pendingStatusText: {
+    color: '#E8A33D',
+  },
+
+  expiredStatusBadge: {
+    backgroundColor: 'rgba(166,54,6,0.08)',
+  },
+
+  expiredStatusText: {
+    color: Theme.colors.primary,
+  },
+
+  pendingDaysBadge: {
+    backgroundColor: 'rgba(232, 163, 61, 0.15)',
+    borderColor: 'rgba(232, 163, 61, 0.3)',
+  },
+
+  pendingDaysValue: {
+    color: '#E8A33D',
+  },
+
+  pendingInfoBox: {
+    backgroundColor: 'rgba(232, 163, 61, 0.08)',
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(232, 163, 61, 0.2)',
+  },
+
+  pendingInfoText: {
+    color: '#E8A33D',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+
+  noPlanCard: {
     backgroundColor: 'rgba(255,255,255,0.15)',
     borderRadius: 18,
     padding: 20,

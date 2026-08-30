@@ -14,6 +14,10 @@ export interface AppSettings {
   termsConditions?: string;
   aboutUs?: string;
   appVersion?: string;
+  supportPublicGroup?: string;
+  supportOfficialChannel?: string;
+  supportOfficialGmail?: string;
+  supportCustomerSupport?: string;
 }
 
 export const getSettings = async (): Promise<{

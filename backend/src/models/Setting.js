@@ -38,6 +38,26 @@ const settingSchema = new mongoose.Schema(
       default: "",
     },
 
+    supportPublicGroup: {
+      type: String,
+      default: "https://t.me/FXwallet0",
+    },
+
+    supportOfficialChannel: {
+      type: String,
+      default: "https://t.me/+8tV1IrL6cdw3Zjc1",
+    },
+
+    supportOfficialGmail: {
+      type: String,
+      default: "fxwallet@gmail.com",
+    },
+
+    supportCustomerSupport: {
+      type: String,
+      default: "@FXwallet70",
+    },
+
     website: {
       type: String,
       default: "",

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,8 @@ import {
 import {Ionicons} from '@react-native-vector-icons/ionicons';
 
 import Theme from '../../core/theme/theme';
+
+import { getSettings } from '../services/settingsService';
 
 interface SupportOption {
   icon: string;
@@ -49,42 +51,96 @@ const openLink = async (
   }
 };
 
-const openMail = () => {
-  // mailto is opened directly — canOpenURL needs manifest <queries>
-  // entries on Android 11+, so gating on it can false-negative.
-  Linking.openURL('mailto:fxwallet@gmail.com').catch(() => {
+const openMail = (email: string) => {
+  Linking.openURL(`mailto:${email}`).catch(() => {
     Alert.alert('No Email App', 'No email app found on this device.');
   });
 };
 
-const options: SupportOption[] = [
-  {
-    icon: 'megaphone',
-    title: 'FX WALLET Official Channel',
-    value: 'https://t.me/+8tV1IrL6cdw3Zjc1',
-    onPress: () => openLink('https://t.me/+8tV1IrL6cdw3Zjc1', 'Telegram'),
-  },
-  {
-    icon: 'people',
-    title: 'FX WALLET PUBLIC GROUP',
-    value: 'https://t.me/FXwallet0',
-    onPress: () => openLink('https://t.me/FXwallet0', 'Telegram'),
-  },
-  {
-    icon: 'mail',
-    title: 'FX WALLET Official Gmail ID',
-    value: 'fxwallet@gmail.com',
-    onPress: openMail,
-  },
-  {
-    icon: 'headset',
-    title: 'Customer Support',
-    value: '@FXwallet70',
-    onPress: () => openLink('https://t.me/FXwallet70', 'Telegram'),
-  },
-];
-
 const SupportSheet = ({visible, onClose}: SupportSheetProps) => {
+  const [options, setOptions] = useState<SupportOption[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (visible) {
+      loadSettings();
+    }
+  }, [visible]);
+
+  const loadSettings = async () => {
+    try {
+      const res = await getSettings();
+      if (res.success && res.settings) {
+        const s = res.settings;
+        const supportOptions: SupportOption[] = [
+          {
+            icon: 'people',
+            title: 'FX WALLET PUBLIC GROUP',
+            value: s.supportPublicGroup || 'https://t.me/FXwallet0',
+            onPress: () => openLink(s.supportPublicGroup || 'https://t.me/FXwallet0', 'Telegram'),
+          },
+          {
+            icon: 'megaphone',
+            title: 'FX WALLET Official Channel',
+            value: s.supportOfficialChannel || 'https://t.me/+8tV1IrL6cdw3Zjc1',
+            onPress: () => openLink(s.supportOfficialChannel || 'https://t.me/+8tV1IrL6cdw3Zjc1', 'Telegram'),
+          },
+          {
+            icon: 'mail',
+            title: 'FX WALLET Official Gmail ID',
+            value: s.supportOfficialGmail || 'fxwallet@gmail.com',
+            onPress: () => openMail(s.supportOfficialGmail || 'fxwallet@gmail.com'),
+          },
+          {
+            icon: 'headset',
+            title: 'Customer Support',
+            value: s.supportCustomerSupport || '@FXwallet70',
+            onPress: () => {
+              const support = s.supportCustomerSupport || '@FXwallet70';
+              const url = support.startsWith('http') ? support : 'https://t.me/FXwallet70';
+              openLink(url, 'Telegram');
+            },
+          },
+        ];
+        setOptions(supportOptions);
+      } else {
+        setOptions(getDefaultOptions());
+      }
+    } catch (error) {
+      console.log('Load support settings error:', error);
+      setOptions(getDefaultOptions());
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getDefaultOptions = (): SupportOption[] => [
+    {
+      icon: 'people',
+      title: 'FX WALLET PUBLIC GROUP',
+      value: 'https://t.me/FXwallet0',
+      onPress: () => openLink('https://t.me/FXwallet0', 'Telegram'),
+    },
+    {
+      icon: 'megaphone',
+      title: 'FX WALLET Official Channel',
+      value: 'https://t.me/+8tV1IrL6cdw3Zjc1',
+      onPress: () => openLink('https://t.me/+8tV1IrL6cdw3Zjc1', 'Telegram'),
+    },
+    {
+      icon: 'mail',
+      title: 'FX WALLET Official Gmail ID',
+      value: 'fxwallet@gmail.com',
+      onPress: () => openMail('fxwallet@gmail.com'),
+    },
+    {
+      icon: 'headset',
+      title: 'Customer Support',
+      value: '@FXwallet70',
+      onPress: () => openLink('https://t.me/FXwallet70', 'Telegram'),
+    },
+  ];
+
   const handleOption = (action: () => void) => {
     onClose();
     action();
@@ -107,39 +163,43 @@ const SupportSheet = ({visible, onClose}: SupportSheetProps) => {
           Choose a channel to reach us
         </Text>
 
-        {options.map(option => (
-          <Pressable
-            key={option.title}
-            style={({pressed}) => [
-              styles.optionRow,
-              pressed && styles.optionRowPressed,
-            ]}
-            onPress={() => handleOption(option.onPress)}>
-            <View style={styles.optionIcon}>
+        {loading ? (
+          <Text style={styles.loadingText}>Loading...</Text>
+        ) : (
+          options.map(option => (
+            <Pressable
+              key={option.title}
+              style={({pressed}) => [
+                styles.optionRow,
+                pressed && styles.optionRowPressed,
+              ]}
+              onPress={() => handleOption(option.onPress)}>
+              <View style={styles.optionIcon}>
+                <Ionicons
+                  name={option.icon as any}
+                  size={20}
+                  color={Theme.colors.primary}
+                />
+              </View>
+
+              <View style={styles.optionTextGroup}>
+                <Text style={styles.optionTitle}>
+                  {option.title}
+                </Text>
+
+                <Text style={styles.optionValue}>
+                  {option.value}
+                </Text>
+              </View>
+
               <Ionicons
-                name={option.icon as any}
-                size={20}
-                color={Theme.colors.primary}
+                name="chevron-forward"
+                size={18}
+                color={Theme.colors.grey}
               />
-            </View>
-
-            <View style={styles.optionTextGroup}>
-              <Text style={styles.optionTitle}>
-                {option.title}
-              </Text>
-
-              <Text style={styles.optionValue}>
-                {option.value}
-              </Text>
-            </View>
-
-            <Ionicons
-              name="chevron-forward"
-              size={18}
-              color={Theme.colors.grey}
-            />
-          </Pressable>
-        ))}
+            </Pressable>
+          ))
+        )}
 
         <Pressable
           style={({pressed}) => [
@@ -194,6 +254,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginTop: 4,
     marginBottom: 18,
+  },
+
+  loadingText: {
+    color: Theme.colors.grey,
+    fontSize: 16,
+    textAlign: 'center',
+    marginVertical: 20,
   },
 
   optionRow: {

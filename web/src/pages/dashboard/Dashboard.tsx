@@ -165,7 +165,7 @@ export default function Dashboard() {
 
       {/* Stats Grid */}
       <div className="stats-grid">
-        <div className="stat-card" style={{ borderLeft: "4px solid #8B2635" }}>
+        <div className="stat-card" style={{ borderLeft: "4px solid #1d4ed8" }}>
           <div className="stat-content">
             <div className="stat-title">Total Balance</div>
             <div className="stat-value">{formatCurrency(wallet?.balance)}</div>
@@ -190,7 +190,7 @@ export default function Dashboard() {
         <div className="stat-card" style={{ borderLeft: "4px solid #a855f7" }}>
           <div className="stat-content">
             <div className="stat-title">Active Plans</div>
-            <div className="stat-value" style={{ color: "#C9717E" }}>
+            <div className="stat-value" style={{ color: "#60a5fa" }}>
               {subscriptions.filter((s) => s.status === "Active").length}
             </div>
           </div>
@@ -229,14 +229,12 @@ export default function Dashboard() {
                 </span>
               </div>
               <div
-                style={{
-                  background: "#172554",
+                style={{                   background: "#172554",
                   borderRadius: 14,
                   padding: "9px 14px",
                   textAlign: "center",
                 }}
-              >
-                <div style={{ color: "#60a5fa", fontSize: 19, fontWeight: 800 }}>
+              >                   <div style={{ color: "#60a5fa", fontSize: 19, fontWeight: 800 }}>
                   {sub.daysRemaining}
                 </div>
                 <div style={{ color: "#bfdbfe", fontSize: 10 }}>days left</div>
@@ -325,7 +323,7 @@ export default function Dashboard() {
             onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-2px)")}
             onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
           >
-            <div style={{ color: "#8B2635", fontSize: 20, fontWeight: 900 }}>
+            <div style={{ color: "#1d4ed8", fontSize: 20, fontWeight: 900 }}>
               {action.emoji}
             </div>
             <h4 style={{ color: "#fff", margin: "10px 0 0", fontSize: 14, fontWeight: 800 }}>

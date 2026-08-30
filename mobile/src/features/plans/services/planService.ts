@@ -28,7 +28,7 @@ export interface Subscription {
   amountPaid: number;
   paymentStatus: 'Pending' | 'Paid' | 'Failed';
   paymentMethod?: 'Wallet' | 'Razorpay';
-  status: 'Active' | 'Expired' | 'Cancelled';
+  status: 'Pending' | 'Active' | 'Expired' | 'Cancelled';
 
   returnAmount?: number;
   returnStatus?: ReturnStatus;

@@ -76,9 +76,6 @@ const menus = [
     path: "/referral",
     icon: <FiGift />,
   },
-
-
-
 ];
 
 export default function Sidebar() {

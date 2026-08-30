@@ -267,6 +267,108 @@ const MySubscriptionScreen = () => {
     );
   }
 
+  // If subscription is pending admin approval, show a different view
+  if (subscription.status === 'Pending') {
+    return (
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={onRefresh}
+            tintColor={Theme.colors.primary}
+            colors={[Theme.colors.primary]}
+          />
+        }>
+        <Text style={styles.screenTitle}>
+          My Subscription
+        </Text>
+
+        <Text style={styles.screenSubtitle}>
+          Your plan is pending admin approval.
+        </Text>
+
+        <HoverWiggle>
+        <GlassCard style={styles.planCard}>
+          <View style={styles.cardHeader}>
+            <View>
+              <Text style={styles.planLabel}>
+                Submitted Plan
+              </Text>
+
+              <Text style={styles.planTitle}>
+                {subscription.plan?.title || 'Plan'}
+              </Text>
+            </View>
+
+            <View style={[styles.statusBadge, styles.pendingStatusBadge]}>
+              <Text style={[styles.statusText, styles.pendingStatusText]}>
+                Pending
+              </Text>
+            </View>
+          </View>
+
+          <Text style={styles.description}>
+            {subscription.plan?.description || 'Your plan submission is under review.'}
+          </Text>
+
+          <View style={styles.pendingInfoBox}>
+            <Text style={styles.pendingInfoIcon}>⏳</Text>
+            <View style={styles.pendingInfoContent}>
+              <Text style={styles.pendingInfoTitle}>
+                Waiting for Approval
+              </Text>
+              <Text style={styles.pendingInfoText}>
+                Our team is reviewing your CDM payment receipt. Your plan will be activated once approved.
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.detailsContainer}>
+            <DetailRow
+              label="Amount Paid"
+              value={`₹${Number(subscription.amountPaid || 0).toFixed(2)}`}
+            />
+
+            <DetailRow
+              label="Expected Return"
+              value={`₹${Number(subscription.returnAmount || subscription.plan?.returnAmount || 0).toFixed(2)}`}
+              valueType="success"
+            />
+
+            <DetailRow
+              label="Duration"
+              value={`${subscription.plan?.duration || 0} days`}
+            />
+
+            <DetailRow
+              label="Payment Method"
+              value="CDM"
+            />
+
+            <DetailRow
+              label="Payment Status"
+              value="Pending Review"
+            />
+          </View>
+
+          <PressableScale
+            style={styles.secondaryButton}
+            onPress={() => Alert.alert(
+              'Pending Approval',
+              'Your CDM payment is being reviewed. The plan will activate automatically once the admin approves it.',
+            )}>
+            <Text style={styles.secondaryButtonText}>
+              View Status
+            </Text>
+          </PressableScale>
+        </GlassCard>
+        </HoverWiggle>
+      </ScrollView>
+    );
+  }
+
   const daysRemaining =
     getDaysRemaining(subscription.endDate);
 
@@ -327,6 +429,8 @@ const MySubscriptionScreen = () => {
           <View
             style={[
               styles.statusBadge,
+              subscription.status === 'Pending' &&
+                styles.pendingStatusBadge,
               subscription.status === 'Expired' &&
                 styles.expiredStatusBadge,
               subscription.status === 'Cancelled' &&
@@ -335,6 +439,8 @@ const MySubscriptionScreen = () => {
             <Text
               style={[
                 styles.statusText,
+                subscription.status === 'Pending' &&
+                  styles.pendingStatusText,
                 subscription.status === 'Expired' &&
                   styles.expiredStatusText,
                 subscription.status ===
@@ -750,6 +856,16 @@ const styles = StyleSheet.create({
     lineHeight: 21,
   },
 
+  pendingStatusBadge: {
+    backgroundColor: 'rgba(232, 163, 61, 0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(232, 163, 61, 0.25)',
+  },
+
+  pendingStatusText: {
+    color: '#E8A33D',
+  },
+
   expiredStatusBadge: {
     backgroundColor: 'rgba(166,54,6,0.08)',
   },
@@ -841,5 +957,39 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
     marginTop: 5,
+  },
+
+  pendingInfoBox: {
+    backgroundColor: 'rgba(232, 163, 61, 0.08)',
+    borderRadius: 14,
+    padding: 16,
+    marginTop: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(232, 163, 61, 0.2)',
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+
+  pendingInfoIcon: {
+    fontSize: 22,
+    marginRight: 12,
+    marginTop: 2,
+  },
+
+  pendingInfoContent: {
+    flex: 1,
+  },
+
+  pendingInfoTitle: {
+    color: '#E8A33D',
+    fontSize: 15,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+
+  pendingInfoText: {
+    color: Theme.colors.grey,
+    fontSize: 13,
+    lineHeight: 19,
   },
 });

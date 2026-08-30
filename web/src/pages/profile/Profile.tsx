@@ -19,6 +19,14 @@ export default function Profile() {
   const [saveError, setSaveError] = useState("");
   const [saveSuccess, setSaveSuccess] = useState("");
 
+  // Account Details
+  const [showAccountDetails, setShowAccountDetails] = useState(false);
+  const [accName, setAccName] = useState("");
+  const [accBankName, setAccBankName] = useState("");
+  const [accAccountNumber, setAccAccountNumber] = useState("");
+  const [accIfscUpi, setAccIfscUpi] = useState("");
+  const [accSaved, setAccSaved] = useState(false);
+
   // Change password
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -30,6 +38,7 @@ export default function Profile() {
 
   useEffect(() => {
     loadProfile();
+    loadAccountDetails();
   }, []);
 
   const loadProfile = async () => {
@@ -85,6 +94,34 @@ export default function Profile() {
       setSaveError(err.response?.data?.message || "Failed to update profile.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const loadAccountDetails = async () => {
+    try {
+      const saved = localStorage.getItem("accountDetails");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setAccName(parsed.name || "");
+        setAccBankName(parsed.bankName || "");
+        setAccAccountNumber(parsed.accountNumber || "");
+        setAccIfscUpi(parsed.ifscUpi || "");
+      }
+    } catch (e) {}
+  };
+
+  const handleSaveAccountDetails = async () => {
+    try {
+      localStorage.setItem("accountDetails", JSON.stringify({
+        name: accName.trim(),
+        bankName: accBankName.trim(),
+        accountNumber: accAccountNumber.trim(),
+        ifscUpi: accIfscUpi.trim(),
+      }));
+      setAccSaved(true);
+      setTimeout(() => setAccSaved(false), 2000);
+    } catch (e) {
+      alert("Failed to save account details.");
     }
   };
 
@@ -189,7 +226,13 @@ export default function Profile() {
               height: 64,
               borderRadius: 32,
               fontSize: 24,
-              background: "#8B2635",
+              fontWeight: 800,
+              color: "#fff",
+              background: "#1d4ed8",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
             }}
           >
             {profile?.fullName?.charAt(0)?.toUpperCase() || "U"}
@@ -330,11 +373,75 @@ export default function Profile() {
               </div>
             </div>
 
+            {/* Account Details Section */}
             <div
               style={{
                 marginTop: 24,
                 paddingTop: 24,
                 borderTop: "1px solid rgba(255, 255, 255, 0.18)",
+              }}
+            >
+              <button
+                className="btn btn-secondary"
+                style={{ width: "100%", marginBottom: 12 }}
+                onClick={() => setShowAccountDetails(!showAccountDetails)}
+              >
+                {showAccountDetails ? "Hide Account Details" : "Your Account Details"}
+              </button>
+
+              {showAccountDetails && (
+                <div style={{ marginTop: 12 }}>
+                  <div className="form-group">
+                    <label className="form-label">Name</label>
+                    <input
+                      className="form-input"
+                      placeholder="e.g. Rahul Sharma"
+                      value={accName}
+                      onChange={(e) => setAccName(e.target.value)}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Bank Name</label>
+                    <input
+                      className="form-input"
+                      placeholder="e.g. HDFC Bank"
+                      value={accBankName}
+                      onChange={(e) => setAccBankName(e.target.value)}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Account Number</label>
+                    <input
+                      className="form-input"
+                      placeholder="e.g. 50100234567890"
+                      value={accAccountNumber}
+                      onChange={(e) => setAccAccountNumber(e.target.value)}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">IFSC / UPI ID</label>
+                    <input
+                      className="form-input"
+                      placeholder="e.g. HDFC0001234 or name@upi"
+                      value={accIfscUpi}
+                      onChange={(e) => setAccIfscUpi(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    className="btn btn-primary"
+                    style={{ width: "100%", marginTop: 4 }}
+                    onClick={handleSaveAccountDetails}
+                  >
+                    {accSaved ? "✅ Saved!" : "Save Account Details"}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div
+              style={{
+                marginTop: 12,
+                paddingTop: 12,
               }}
             >
               <button

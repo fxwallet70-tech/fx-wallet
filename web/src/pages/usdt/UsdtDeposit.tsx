@@ -26,6 +26,12 @@ export default function UsdtDeposit() {
   const [proofError, setProofError] = useState("");
   const [proofSuccess, setProofSuccess] = useState("");
 
+  // Account details for USDT
+  const [accName, setAccName] = useState("");
+  const [accBankName, setAccBankName] = useState("");
+  const [accAccountNumber, setAccAccountNumber] = useState("");
+  const [accIfscUpi, setAccIfscUpi] = useState("");
+
   // History
   const [proofs, setProofs] = useState<PaymentProof[]>([]);
   const [proofsLoading, setProofsLoading] = useState(true);
@@ -35,6 +41,18 @@ export default function UsdtDeposit() {
   useEffect(() => {
     loadUsdtPayment();
     loadProofs();
+
+    // Load saved account details from localStorage
+    try {
+      const saved = localStorage.getItem("accountDetails");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setAccName(parsed.name || "");
+        setAccBankName(parsed.bankName || "");
+        setAccAccountNumber(parsed.accountNumber || "");
+        setAccIfscUpi(parsed.ifscUpi || "");
+      }
+    } catch (e) {}
   }, []);
 
   const loadUsdtPayment = async () => {
@@ -112,11 +130,28 @@ export default function UsdtDeposit() {
       return;
     }
 
+    if (!accName.trim() || !accBankName.trim() || !accAccountNumber.trim() || !accIfscUpi.trim()) {
+      setProofError("Please fill in all account details.");
+      return;
+    }
+
+    // Save account details to localStorage
+    try {
+      localStorage.setItem("accountDetails", JSON.stringify({
+        name: accName.trim(),
+        bankName: accBankName.trim(),
+        accountNumber: accAccountNumber.trim(),
+        ifscUpi: accIfscUpi.trim(),
+      }));
+    } catch (e) {}
+
+    const fullAccountDetails = `${accountDetails.trim()}\n\nAccount Details:\nName: ${accName.trim()}\nBank: ${accBankName.trim()}\nAccount: ${accAccountNumber.trim()}\nIFSC/UPI: ${accIfscUpi.trim()}`;
+
     try {
       setSubmitting(true);
       const res = await submitPaymentProof({
         screenshot,
-        accountDetails: accountDetails.trim(),
+        accountDetails: fullAccountDetails,
       });
 
       if (res.success) {
@@ -198,7 +233,7 @@ export default function UsdtDeposit() {
               width: 40,
               height: 40,
               borderRadius: 10,
-              background: "#8B2635",
+              background: "#1d4ed8",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -387,8 +422,7 @@ export default function UsdtDeposit() {
 
         {/* Info Banner */}
         <div
-          style={{
-            background: "#172554",
+          style={{              background: "#172554",
             border: "1px solid #1d4ed8",
             borderRadius: 12,
             padding: "14px 16px",
@@ -465,7 +499,7 @@ export default function UsdtDeposit() {
               background: preview ? "#0F1210" : "transparent",
             }}
             onMouseEnter={(e) => {
-              if (!preview) e.currentTarget.style.borderColor = "#8B2635";
+              if (!preview) e.currentTarget.style.borderColor = "#1d4ed8";
             }}
             onMouseLeave={(e) => {
               if (!preview) e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.18)";
@@ -563,6 +597,43 @@ export default function UsdtDeposit() {
           </div>
         </div>
 
+        {/* Bank Account Details */}
+        <div style={{ marginTop: 16, borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 16 }}>
+          <label className="form-label" style={{ marginBottom: 12, fontWeight: 600 }}>Account Details</label>
+          <div className="form-group">
+            <input
+              className="form-input"
+              placeholder="Account Holder Name"
+              value={accName}
+              onChange={(e) => setAccName(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <input
+              className="form-input"
+              placeholder="Bank Name (e.g. HDFC Bank)"
+              value={accBankName}
+              onChange={(e) => setAccBankName(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <input
+              className="form-input"
+              placeholder="Account Number"
+              value={accAccountNumber}
+              onChange={(e) => setAccAccountNumber(e.target.value)}
+            />
+          </div>
+          <div className="form-group">
+            <input
+              className="form-input"
+              placeholder="IFSC / UPI ID"
+              value={accIfscUpi}
+              onChange={(e) => setAccIfscUpi(e.target.value)}
+            />
+          </div>
+        </div>
+
         {/* Submit Button */}
         <button
           className="btn btn-primary"
@@ -649,7 +720,7 @@ export default function UsdtDeposit() {
                 marginBottom: 12,
                 cursor: "pointer",
                 transition: "border-color 0.2s",
-                borderColor: selectedProof?._id === proof._id ? "#8B2635" : undefined,
+                borderColor: selectedProof?._id === proof._id ? "#1d4ed8" : undefined,
                 padding: 16,
               }}
               onClick={() =>

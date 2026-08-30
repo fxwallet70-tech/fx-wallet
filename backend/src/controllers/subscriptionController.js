@@ -328,6 +328,22 @@ const getUserSubscription = async (
       },
     );
 
+    // Also mark expired Pending subscriptions
+    await Subscription.updateMany(
+      {
+        user: userId,
+        status: 'Pending',
+        endDate: {
+          $lt: now,
+        },
+      },
+      {
+        $set: {
+          status: 'Expired',
+        },
+      },
+    );
+
     const subscription =
   await Subscription.findOne({
     user: userId,

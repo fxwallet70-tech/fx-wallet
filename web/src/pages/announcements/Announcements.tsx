@@ -89,7 +89,7 @@ export default function Announcements() {
             className="card"
             style={{
               marginBottom: 16,
-              borderLeft: announcement.status ? "4px solid #8B2635" : "4px solid rgba(255, 255, 255, 0.18)",
+              borderLeft: announcement.status ? "4px solid #1d4ed8" : "4px solid rgba(255, 255, 255, 0.18)",
               opacity: announcement.status ? 1 : 0.6,
             }}
           >

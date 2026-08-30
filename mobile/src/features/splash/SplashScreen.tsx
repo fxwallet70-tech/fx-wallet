@@ -66,7 +66,7 @@ const SplashScreen = ({navigation}: Props) => {
         <Text style={styles.logo}>FX WALLET</Text>
 
         <Text style={styles.subtitle}>
-          AI Membership Platform
+          Foreign Exchange Wallet
         </Text>
       </Animated.View>
     </View>

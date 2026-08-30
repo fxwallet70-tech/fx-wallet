@@ -22,6 +22,8 @@ import {
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import {Ionicons} from '@react-native-vector-icons/ionicons';
+
 import Theme from '../../../core/theme/theme';
 
 import {
@@ -60,6 +62,15 @@ const ProfileScreen = () => {
 
   const [isSupportOpen, setIsSupportOpen] =
     useState(false);
+
+  const [isAccountDetailsOpen, setIsAccountDetailsOpen] =
+    useState(false);
+
+  const [accName, setAccName] = useState('');
+  const [accBankName, setAccBankName] = useState('');
+  const [accAccountNumber, setAccAccountNumber] =
+    useState('');
+  const [accIfscUpi, setAccIfscUpi] = useState('');
 
   const [errorMessage, setErrorMessage] =
     useState('');
@@ -112,6 +123,36 @@ const ProfileScreen = () => {
   useFocusEffect(
     useCallback(() => {
       loadProfile();
+
+      const loadAccountDetails = async () => {
+        try {
+          const saved = await AsyncStorage.getItem(
+            'accountDetails',
+          );
+
+          if (saved) {
+            const parsed = JSON.parse(saved);
+
+            setAccName(parsed.name || '');
+            setAccBankName(
+              parsed.bankName || '',
+            );
+            setAccAccountNumber(
+              parsed.accountNumber || '',
+            );
+            setAccIfscUpi(
+              parsed.ifscUpi || '',
+            );
+          }
+        } catch (error) {
+          console.log(
+            'Load account details error:',
+            error,
+          );
+        }
+      };
+
+      loadAccountDetails();
 
       return undefined;
     }, []),
@@ -217,6 +258,35 @@ const ProfileScreen = () => {
       );
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSaveAccountDetails = async () => {
+    try {
+      await AsyncStorage.setItem(
+        'accountDetails',
+        JSON.stringify({
+          name: accName.trim(),
+          bankName: accBankName.trim(),
+          accountNumber: accAccountNumber.trim(),
+          ifscUpi: accIfscUpi.trim(),
+        }),
+      );
+
+      Alert.alert(
+        'Saved',
+        'Account details saved successfully.',
+      );
+    } catch (error) {
+      console.log(
+        'Save account details error:',
+        error,
+      );
+
+      Alert.alert(
+        'Save Failed',
+        'Unable to save account details.',
+      );
     }
   };
 
@@ -473,6 +543,78 @@ const handleLogout = () => {
         </PressableScale>
         </HoverWiggle>
       )}
+
+      {/* Account Details — same as USDT account details */}
+      <HoverWiggle>
+      <GlassCard style={styles.accountCard}>
+        <PressableScale
+          style={styles.accountHeader}
+          onPress={() =>
+            setIsAccountDetailsOpen(open => !open)
+          }>
+          <Text style={styles.accountHeaderTitle}>
+            Your Account Details
+          </Text>
+
+          <Ionicons
+            name={isAccountDetailsOpen ? 'chevron-up' : 'chevron-down'}
+            size={20}
+            color={Theme.colors.primary}
+          />
+        </PressableScale>
+
+        {isAccountDetailsOpen ? (
+          <View>
+            <Text style={styles.accountLabel}>Name</Text>
+            <TextInput
+              style={styles.accountInput}
+              placeholder="e.g. Rahul Sharma"
+              placeholderTextColor={Theme.colors.grey}
+              value={accName}
+              onChangeText={setAccName}
+            />
+
+            <Text style={styles.accountLabel}>Bank Name</Text>
+            <TextInput
+              style={styles.accountInput}
+              placeholder="e.g. HDFC Bank"
+              placeholderTextColor={Theme.colors.grey}
+              value={accBankName}
+              onChangeText={setAccBankName}
+            />
+
+            <Text style={styles.accountLabel}>Account Number</Text>
+            <TextInput
+              style={styles.accountInput}
+              placeholder="e.g. 50100234567890"
+              placeholderTextColor={Theme.colors.grey}
+              value={accAccountNumber}
+              onChangeText={setAccAccountNumber}
+              keyboardType="number-pad"
+            />
+
+            <Text style={styles.accountLabel}>IFSC / UPI ID</Text>
+            <TextInput
+              style={styles.accountInput}
+              placeholder="e.g. HDFC0001234 or name@upi"
+              placeholderTextColor={Theme.colors.grey}
+              value={accIfscUpi}
+              onChangeText={setAccIfscUpi}
+              autoCapitalize="characters"
+            />
+
+            <PressableScale
+              style={styles.accountSaveButton}
+              onPress={handleSaveAccountDetails}>
+              <Text style={styles.accountSaveButtonText}>
+                Save Account Details
+              </Text>
+            </PressableScale>
+          </View>
+        ) : null}
+      </GlassCard>
+      </HoverWiggle>
+
       {!isEditing ? (
         <>
          <HoverWiggle>
@@ -510,16 +652,16 @@ const handleLogout = () => {
          </HoverWiggle>
          
          <HoverWiggle>
-         <PressableScale
-         style={styles.supportButton}
-         onPress={() =>
-          setIsSupportOpen(true)
-          }>
+          <PressableScale
+          style={styles.supportButton}
+          onPress={() =>
+           setIsSupportOpen(true)
+           }>
             <Text style={styles.supportText}>
                 Customer Support
                 </Text>
-         </PressableScale>
-         </HoverWiggle>
+          </PressableScale>
+          </HoverWiggle>
          
          <HoverWiggle>
          <PressableScale
@@ -655,6 +797,61 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
+
+  accountCard: {
+    backgroundColor: Theme.colors.card,
+    borderRadius: 16,
+    padding: 18,
+    marginTop: 14,
+    borderWidth: 1.5,
+    borderColor: Theme.colors.glassBorder,
+  },
+
+  accountHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 4,
+  },
+
+  accountHeaderTitle: {
+    color: Theme.colors.text,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+
+  accountLabel: {
+    color: Theme.colors.grey,
+    fontSize: 12,
+    fontWeight: '600',
+    marginBottom: 6,
+    marginTop: 4,
+  },
+
+  accountInput: {
+    borderWidth: 1,
+    borderColor: Theme.colors.glassBorder,
+    borderRadius: 10,
+    padding: 12,
+    color: Theme.colors.text,
+    backgroundColor: Theme.colors.inputBg,
+    marginBottom: 12,
+  },
+
+  accountSaveButton: {
+    backgroundColor: Theme.colors.primary,
+    borderRadius: 10,
+    paddingVertical: 13,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+
+  accountSaveButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 15,
+  },
+
   changePasswordButton: {
   backgroundColor: Theme.colors.card,
   borderWidth: 1,

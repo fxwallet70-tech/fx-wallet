@@ -1,8 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { getPlans, subscribePlan } from "../../services/planService";
-import { submitCdmRequest } from "../../services/cdmService";
+import { getCdmSetting, submitCdmRequest } from "../../services/cdmService";
 import type { Plan } from "../../services/planService";
+import { SERVER_BASE_URL } from "../../api/axios";
 
 function TiltCard({ children }: { children: React.ReactNode }) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -50,6 +51,14 @@ export default function Plans() {
   const [transactionId, setTransactionId] = useState("");
   const [isSubmittingCdm, setIsSubmittingCdm] = useState(false);
 
+  // Account details for CDM
+  const [accName, setAccName] = useState("");
+  const [accBankName, setAccBankName] = useState("");
+  const [accAccountNumber, setAccAccountNumber] = useState("");
+  const [accIfscUpi, setAccIfscUpi] = useState("");
+
+  const [cdmSetting, setCdmSetting] = useState<{ description?: string; image?: string } | null>(null);
+
   useEffect(() => {
     loadPlans();
   }, []);
@@ -70,7 +79,34 @@ export default function Plans() {
     setSelectedPlan(plan);
     setPaymentMethod("Wallet");
     setSubscribeError("");
+    setProofImage(null);
+    setTransactionId("");
     setShowModal(true);
+    setCdmSetting(null);
+
+    // Load CDM setting
+    try {
+      const res = await getCdmSetting();
+      if (res.success && res.data) {
+        setCdmSetting(res.data);
+      }
+    } catch (e) {
+      console.log("Load CDM setting error:", e);
+    }
+
+    // Load saved account details from localStorage
+    try {
+      const saved = localStorage.getItem("accountDetails");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setAccName(parsed.name || "");
+        setAccBankName(parsed.bankName || "");
+        setAccAccountNumber(parsed.accountNumber || "");
+        setAccIfscUpi(parsed.ifscUpi || "");
+      }
+    } catch (e) {
+      console.log("Load account details error:", e);
+    }
   };
 
   const handleSubscribe = async () => {
@@ -98,11 +134,29 @@ export default function Plans() {
           return;
         }
 
+        if (!accName.trim() || !accBankName.trim() || !accAccountNumber.trim() || !accIfscUpi.trim()) {
+          setSubscribeError("Please fill in all account details.");
+          setSubscribing(null);
+          return;
+        }
+
+        // Save account details to localStorage
+        try {
+          localStorage.setItem("accountDetails", JSON.stringify({
+            name: accName.trim(),
+            bankName: accBankName.trim(),
+            accountNumber: accAccountNumber.trim(),
+            ifscUpi: accIfscUpi.trim(),
+          }));
+        } catch (e) {}
+
+        const accountDetailsStr = `Name: ${accName.trim()}\nBank: ${accBankName.trim()}\nAccount: ${accAccountNumber.trim()}\nIFSC/UPI: ${accIfscUpi.trim()}`;
+
         setIsSubmittingCdm(true);
         const res = await submitCdmRequest(
           selectedPlan._id,
           proofImage,
-          `Plan: ${selectedPlan.title}`,
+          accountDetailsStr,
           transactionId
         );
 
@@ -123,6 +177,9 @@ export default function Plans() {
 
   const formatCurrency = (amount?: number) =>
     `₹${Number(amount || 0).toFixed(2)}`;
+
+  const buildCdmReference = (plan: Plan) =>
+    `CDM-${plan._id.slice(-6)}-${Date.now().toString().slice(-6)}`;
 
   if (loading) {
     return (
@@ -368,6 +425,65 @@ export default function Plans() {
                     className="form-input"
                     style={{ width: "100%", padding: 10, borderRadius: 8, background: "#181E1B", color: "#fff", border: "1px solid rgba(255, 255, 255, 0.18)" }}
                   />
+
+                  <div style={{ marginTop: 16, borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 14 }}>
+                    <p style={{ color: "#94a3b8", fontSize: 13, marginBottom: 10, fontWeight: 600 }}>Account Details</p>
+
+                    <input
+                      type="text"
+                      placeholder="Account Holder Name"
+                      value={accName}
+                      onChange={(e) => setAccName(e.target.value)}
+                      className="form-input"
+                      style={{ width: "100%", padding: 10, borderRadius: 8, background: "#181E1B", color: "#fff", border: "1px solid rgba(255, 255, 255, 0.18)", marginBottom: 10 }}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Bank Name (e.g. HDFC Bank)"
+                      value={accBankName}
+                      onChange={(e) => setAccBankName(e.target.value)}
+                      className="form-input"
+                      style={{ width: "100%", padding: 10, borderRadius: 8, background: "#181E1B", color: "#fff", border: "1px solid rgba(255, 255, 255, 0.18)", marginBottom: 10 }}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Account Number"
+                      value={accAccountNumber}
+                      onChange={(e) => setAccAccountNumber(e.target.value)}
+                      className="form-input"
+                      style={{ width: "100%", padding: 10, borderRadius: 8, background: "#181E1B", color: "#fff", border: "1px solid rgba(255, 255, 255, 0.18)", marginBottom: 10 }}
+                    />
+                    <input
+                      type="text"
+                      placeholder="IFSC / UPI ID"
+                      value={accIfscUpi}
+                      onChange={(e) => setAccIfscUpi(e.target.value)}
+                      className="form-input"
+                      style={{ width: "100%", padding: 10, borderRadius: 8, background: "#181E1B", color: "#fff", border: "1px solid rgba(255, 255, 255, 0.18)" }}
+                    />
+                  </div>
+
+                  {selectedPlan && (
+                    <div style={{ marginTop: 16, borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 14 }}>
+                      <p style={{ color: "#22c55e", fontSize: 13, fontWeight: 700, marginBottom: 6 }}>
+                        Deposit Reference: {buildCdmReference(selectedPlan)}
+                      </p>
+
+                      {cdmSetting?.description && (
+                        <p style={{ color: "#94a3b8", fontSize: 13, lineHeight: 1.6, marginBottom: 10 }}>
+                          {cdmSetting.description}
+                        </p>
+                      )}
+
+                      {cdmSetting?.image && (
+                        <img
+                          src={`${SERVER_BASE_URL}${cdmSetting.image}`}
+                          alt="CDM Instruction"
+                          style={{ width: "100%", height: 160, objectFit: "contain", borderRadius: 12, background: "#181E1B" }}
+                        />
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

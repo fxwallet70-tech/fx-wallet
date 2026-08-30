@@ -48,7 +48,7 @@ export default function BackgroundEffects() {
     const glow = document.querySelector('.mouse-glow') as HTMLElement;
     const onMouseMoveForGlow = (e: MouseEvent) => {
       if (!glow) return;
-      glow.style.background = `radial-gradient(600px circle at ${e.clientX}px ${e.clientY}px, rgba(139, 38, 53, 0.06), transparent 60%)`;
+      glow.style.background = `radial-gradient(600px circle at ${e.clientX}px ${e.clientY}px, rgba(29, 78, 216, 0.06), transparent 60%)`;
     };
     // Throttle via raf
     let glowRaf: number;
@@ -105,7 +105,7 @@ export default function BackgroundEffects() {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(139, 38, 53, ${0.08 * (1 - dist2 / 150)})`;
+            ctx.strokeStyle = `rgba(29, 78, 216, ${0.08 * (1 - dist2 / 150)})`;
             ctx.lineWidth = 0.5;
             ctx.stroke();
           }

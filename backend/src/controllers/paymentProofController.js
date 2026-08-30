@@ -1,4 +1,5 @@
 const PaymentProof = require('../models/PaymentProof');
+const Payment = require('../models/Payment');
 
 // User: delete their own pending proof
 const deleteProof = async (req, res) => {
@@ -129,6 +130,20 @@ const updateProofStatus = async (req, res) => {
   }
 };
 
+// User: get payment history
+const getPaymentHistory = async (req, res) => {
+  try {
+    const payments = await Payment.find({ user: req.user.id })
+      .populate('plan', 'title')
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({ success: true, payments });
+  } catch (error) {
+    console.error('Get payment history error:', error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
 module.exports = {
   submitProof,
   getProofs,
@@ -136,4 +151,5 @@ module.exports = {
   getMyProofs,
   deleteProof,
   getPendingProofCount,
+  getPaymentHistory,
 };

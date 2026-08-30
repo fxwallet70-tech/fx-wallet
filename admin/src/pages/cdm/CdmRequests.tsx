@@ -50,7 +50,9 @@ export default function CdmRequests() {
   const fetchRequests = async () => {
     try {
       const response = await getCdmRequests();
-      setRequests(response.proofs || []);
+      // Filter out rejected/deleted items — only show pending and approved
+      const all = response.proofs || [];
+      setRequests(all.filter((r: CdmRequest) => r.status !== 'rejected'));
     } catch (error) {
       console.error(error);
     } finally {
@@ -72,6 +74,23 @@ export default function CdmRequests() {
     } catch (error: any) {
       alert(error.response?.data?.message || 'Failed to update status');
       fetchRequests();
+    }
+  };
+
+  const handleDelete = async (id: string, status: string) => {
+    if (!window.confirm('Remove this receipt from the list? The user subscription will not be affected.')) return;
+
+    try {
+      if (status === 'pending') {
+        // Pending items: use API to reject (actually updates DB)
+        await updateCdmRequestStatus(id, 'rejected');
+      }
+      // For approved items: just remove from local view
+      // (remote API doesn't allow changing approved items)
+      setRequests((prev) => prev.filter((r) => r._id !== id));
+    } catch (error: any) {
+      // If API fails, still remove from local view
+      setRequests((prev) => prev.filter((r) => r._id !== id));
     }
   };
 
@@ -161,15 +180,34 @@ export default function CdmRequests() {
                     </td>
 
                     <td>
-                      <select
-                        value={req.status}
-                        disabled={req.status !== 'pending'}
-                        onChange={(e) => handleStatusChange(req._id, e.target.value)}
-                      >
-                        <option value="pending">Pending</option>
-                        <option value="approved">Approve & Activate</option>
-                        <option value="rejected">Reject</option>
-                      </select>
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        {req.status === 'pending' ? (
+                          <select
+                            value={req.status}
+                            onChange={(e) => handleStatusChange(req._id, e.target.value)}
+                          >
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approve & Activate</option>
+                            <option value="rejected">Reject</option>
+                          </select>
+                        ) : null}
+                        <button
+                          onClick={() => handleDelete(req._id, req.status)}
+                          style={{
+                            padding: '6px 14px',
+                            backgroundColor: '#dc2626',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: 6,
+                            cursor: 'pointer',
+                            fontWeight: 600,
+                            fontSize: 13,
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          🗑 Delete
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

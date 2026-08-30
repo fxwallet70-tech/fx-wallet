@@ -6,6 +6,7 @@ import LoginScreen from '../../features/auth/screens/LoginScreen';
 import RegisterScreen from '../../features/auth/screens/RegisterScreen';
 import ForgotPasswordScreen from '../../features/auth/screens/ForgotPasswordScreen';
 import ChangePasswordScreen from '../../features/profile/screens/ChangePasswordScreen';
+import ReferAndEarnScreen from '../../features/referral/screens/ReferAndEarnScreen';
 import BottomTabNavigator from './BottomTabNavigator';
 import {RootStackParamList} from './types';
 import PaymentHistoryScreen from '../../features/payments/screens/PaymentHistoryScreen';
@@ -36,6 +37,11 @@ const AppNavigator = () => {
         name="ChangePassword"
         component={ChangePasswordScreen}
         options={{title: 'Change Password', headerShown: true}}
+      />
+      <Stack.Screen
+        name="ReferAndEarn"
+        component={ReferAndEarnScreen}
+        options={{title: 'Refer & Earn', headerShown: true}}
       />
       <Stack.Screen
         name="PaymentHistory"

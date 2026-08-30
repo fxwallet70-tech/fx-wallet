@@ -21,7 +21,7 @@ body {
 }
 
 .auth-title {
-  color: #8B2635;
+  color: #3b82f6;
   font-size: 28px;
   font-weight: 800;
   text-align: center;
@@ -53,7 +53,7 @@ body {
 
 .auth-button {
   width: 100%;
-  background: #8B2635;
+  background: #3b82f6;
   color: #ffffff;
   border: none;
   border-radius: 10px;
@@ -77,7 +77,7 @@ body {
 }
 
 .auth-link a {
-  color: #8B2635;
+  color: #3b82f6;
   text-decoration: none;
   font-weight: 600;
 }

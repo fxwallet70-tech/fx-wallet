@@ -18,4 +18,6 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+export const SERVER_BASE_URL = api.defaults.baseURL?.replace('/api', '') || '';
+
 export default api;

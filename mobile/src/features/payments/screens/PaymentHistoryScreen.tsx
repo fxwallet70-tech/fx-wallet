@@ -50,18 +50,35 @@ const PaymentHistoryScreen = () => {
 
       setErrorMessage('');
 
-      const response =
-        await api.get<PaymentHistoryResponse>(
-          '/payments/history',
-        );
+      // Try dedicated endpoint first, fall back to dashboard
+      let loaded = false;
+      try {
+        const response =
+          await api.get<PaymentHistoryResponse>(
+            '/payments/history',
+          );
+        if (response.data.success && response.data.payments) {
+          setPayments(response.data.payments);
+          loaded = true;
+        }
+      } catch {
+        // fall through to dashboard
+      }
 
-      if (response.data.success) {
-        setPayments(response.data.payments || []);
-      } else {
-        setErrorMessage(
-          response.data.message ||
-            'Unable to load payment history.',
-        );
+      if (!loaded) {
+        try {
+          const dashRes = await api.get('/dashboard');
+          if (dashRes.data.success && dashRes.data.data) {
+            setPayments(dashRes.data.data.recentPayments || []);
+            loaded = true;
+          }
+        } catch {
+          // silently fail
+        }
+      }
+
+      if (!loaded) {
+        setErrorMessage('Unable to load payment history.');
       }
     } catch (error: any) {
       console.log(

@@ -143,12 +143,41 @@ const createCdmRequest = async (req, res) => {
       status: "pending",
     });
 
+    /*
+     * Create a subscription with status "Pending" so the user can see
+     * it in My Subscription while waiting for admin approval.
+     */
+    const startDate = new Date();
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + Number(plan.duration));
+
+    const subscription = await Subscription.create({
+      user: userId,
+      plan: plan._id,
+      startDate,
+      endDate,
+      status: "Pending",
+      amountPaid: amount,
+      returnAmount: Number(plan.returnAmount || 0),
+      paymentMethod: "CDM",
+      paymentStatus: "Pending",
+      returnStatus: Number(plan.returnAmount || 0) > 0 ? "Pending" : "NotApplicable",
+    });
+
+    // Link the subscription to payment and proof
+    payment.subscription = subscription._id;
+    await payment.save();
+
+    proof.subscription = subscription._id;
+    await proof.save();
+
     return res.status(201).json({
       success: true,
       message:
         "CDM payment submitted. Our team will review your receipt and activate your plan once approved.",
       data: proof,
       payment: { _id: payment._id, status: payment.status, amount },
+      subscription,
     });
   } catch (error) {
     console.error("Create CDM request error:", error);
@@ -203,10 +232,10 @@ const updateCdmRequestStatus = async (req, res) => {
   try {
     const { status } = req.body;
 
-    if (!["approved", "rejected"].includes(status)) {
+    if (!["approved", "rejected", "deleted"].includes(status)) {
       return res.status(400).json({
         success: false,
-        message: "Status must be approved or rejected",
+        message: "Status must be approved, rejected, or deleted",
       });
     }
 
@@ -219,6 +248,44 @@ const updateCdmRequestStatus = async (req, res) => {
       });
     }
 
+    // Allow rejection/deletion of pending OR approved items
+    if (status === "rejected" || status === "deleted") {
+      if (proof.status === "rejected") {
+        return res.status(400).json({
+          success: false,
+          message: "This request was already rejected",
+        });
+      }
+
+      const isDeleted = status === "deleted";
+      proof.status = "rejected";
+      await proof.save();
+
+      const payment = await Payment.findById(proof.payment);
+      if (payment) {
+        payment.status = "Failed";
+        payment.failureReason = isDeleted ? "Deleted by admin" : "Rejected by admin";
+        await payment.save();
+      }
+
+      // For deleted items: skip subscription cancellation — just clean up admin panel
+      // For rejected items: cancel pending subscription
+      if (!isDeleted && proof.subscription) {
+        const sub = await Subscription.findById(proof.subscription);
+        if (sub && sub.status === "Pending") {
+          sub.status = "Cancelled";
+          sub.paymentStatus = "Failed";
+          await sub.save();
+        }
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: isDeleted ? "CDM receipt removed" : "CDM request rejected",
+      });
+    }
+
+    // Only pending items can be approved
     if (proof.status !== "pending") {
       return res.status(400).json({
         success: false,
@@ -227,22 +294,6 @@ const updateCdmRequestStatus = async (req, res) => {
     }
 
     const payment = await Payment.findById(proof.payment);
-
-    if (status === "rejected") {
-      proof.status = "rejected";
-      await proof.save();
-
-      if (payment) {
-        payment.status = "Failed";
-        payment.failureReason = "Rejected by admin";
-        await payment.save();
-      }
-
-      return res.status(200).json({
-        success: true,
-        message: "CDM request rejected",
-      });
-    }
 
     /* -------- Approve: activate the plan subscription -------- */
     const plan = proof.plan;
@@ -254,22 +305,36 @@ const updateCdmRequestStatus = async (req, res) => {
       });
     }
 
-    const startDate = new Date();
-    const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + Number(plan.duration));
+    /*
+     * If a pending subscription was created at CDM submit time, activate it.
+     * Otherwise create one (legacy requests submitted before this change).
+     */
+    let subscription = proof.subscription
+      ? await Subscription.findById(proof.subscription)
+      : null;
 
-    const subscription = await Subscription.create({
-      user: proof.user,
-      plan: plan._id,
-      startDate,
-      endDate,
-      status: "Active",
-      amountPaid: Number(plan.price || 0),
-      returnAmount: Number(plan.returnAmount || 0),
-      paymentMethod: "CDM",
-      paymentStatus: "Paid",
-      returnStatus: Number(plan.returnAmount || 0) > 0 ? "Pending" : "NotApplicable",
-    });
+    if (subscription) {
+      subscription.status = "Active";
+      subscription.paymentStatus = "Paid";
+      await subscription.save();
+    } else {
+      const startDate = new Date();
+      const endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + Number(plan.duration));
+
+      subscription = await Subscription.create({
+        user: proof.user,
+        plan: plan._id,
+        startDate,
+        endDate,
+        status: "Active",
+        amountPaid: Number(plan.price || 0),
+        returnAmount: Number(plan.returnAmount || 0),
+        paymentMethod: "CDM",
+        paymentStatus: "Paid",
+        returnStatus: Number(plan.returnAmount || 0) > 0 ? "Pending" : "NotApplicable",
+      });
+    }
 
     if (payment) {
       payment.status = "Success";
@@ -349,7 +414,45 @@ const updateCdmRequestStatus = async (req, res) => {
   }
 };
 
-/* __APPROVE_FUNCTION__ */
+/* ------------------------------------------------------------------
+ * Admin: delete a CDM request (receipt + related payment/subscription)
+ * ------------------------------------------------------------------ */
+const deleteCdmRequest = async (req, res) => {
+  try {
+    const proof = await PaymentProof.findById(req.params.id);
+
+    if (!proof || proof.type !== "plan_cdm") {
+      return res.status(404).json({
+        success: false,
+        message: "CDM request not found",
+      });
+    }
+
+    // Delete associated payment
+    if (proof.payment) {
+      await Payment.findByIdAndDelete(proof.payment);
+    }
+
+    // Delete associated subscription (only if still Pending)
+    if (proof.subscription) {
+      const sub = await Subscription.findById(proof.subscription);
+      if (sub && sub.status === "Pending") {
+        await Subscription.findByIdAndDelete(proof.subscription);
+      }
+    }
+
+    // Delete the proof itself
+    await PaymentProof.findByIdAndDelete(req.params.id);
+
+    return res.status(200).json({
+      success: true,
+      message: "CDM request deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete CDM request error:", error);
+    return res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
 
 module.exports = {
   getCdmSetting,
@@ -358,4 +461,5 @@ module.exports = {
   getMyCdmRequests,
   getAllCdmRequests,
   updateCdmRequestStatus,
+  deleteCdmRequest,
 };

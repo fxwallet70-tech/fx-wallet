@@ -3,21 +3,21 @@ const bcrypt = require('bcryptjs');
 const Admin = require('../models/Admin');
 
 const createAdmin = async () => {
-  const exists = await Admin.findOne({
-    email: 'admin@nexora.com',
+  const existingAdmin = await Admin.findOne({
+    email: 'admin@fxwallet.com',
   });
 
-  if (exists) return;
+  if (!existingAdmin) {
+    const password = await bcrypt.hash('FXwallet70301043', 10);
 
-  const password = await bcrypt.hash('Admin@123', 10);
+    await Admin.create({
+      fullName: 'FX Wallet Admin',
+      email: 'admin@fxwallet.com',
+      password,
+    });
 
-  await Admin.create({
-    fullName: 'Super Admin',
-    email: 'admin@nexora.com',
-    password,
-  });
-
-  console.log('Default Admin Created');
+    console.log('Default Admin Created');
+  }
 };
 
 module.exports = createAdmin;

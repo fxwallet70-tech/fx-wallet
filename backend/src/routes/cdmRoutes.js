@@ -13,6 +13,7 @@ const {
   getMyCdmRequests,
   getAllCdmRequests,
   updateCdmRequestStatus,
+  deleteCdmRequest,
 } = require("../controllers/cdmController");
 
 // Deposit instructions (public GET for the app; admin can update)
@@ -23,8 +24,9 @@ router.put("/setting", adminMiddleware, uploadCdm.single("image"), updateCdmSett
 router.post("/", authMiddleware, uploadProof.single("screenshot"), createCdmRequest);
 router.get("/my", authMiddleware, getMyCdmRequests);
 
-// Admin: review & approve/reject CDM requests
+// Admin: review & approve/reject/delete CDM requests
 router.get("/admin", adminMiddleware, getAllCdmRequests);
 router.put("/admin/:id", adminMiddleware, updateCdmRequestStatus);
+router.delete("/admin/:id", adminMiddleware, deleteCdmRequest);
 
 module.exports = router;

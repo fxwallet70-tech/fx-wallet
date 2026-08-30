@@ -67,8 +67,8 @@ npm start                # production
 On first start the backend automatically creates a default admin:
 
 ```
-Email:    admin@nexora.com
-Password: Admin@123
+Email:    admin@fxwallet.com
+Password: FXwallet70301043
 ```
 
 **Change this password immediately after your first login.**

@@ -61,10 +61,10 @@ export default function Settings() {
       title: "Support",
       icon: "🛟",
       items: [
-        { label: "Public Group", value: "https://t.me/FXwallet0", link: "https://t.me/FXwallet0" },
-        { label: "Official Channel", value: "https://t.me/+8tV1IrL6cdw3Zjc1", link: "https://t.me/+8tV1IrL6cdw3Zjc1" },
-        { label: "Official Gmail", value: "fxwallet@gmail.com", link: "mailto:fxwallet@gmail.com" },
-        { label: "Customer Support", value: "@FXwallet70", link: "https://t.me/FXwallet70" },
+        { label: "Public Group", value: settings?.supportPublicGroup || "https://t.me/FXwallet0", link: settings?.supportPublicGroup || "https://t.me/FXwallet0" },
+        { label: "Official Channel", value: settings?.supportOfficialChannel || "https://t.me/+8tV1IrL6cdw3Zjc1", link: settings?.supportOfficialChannel || "https://t.me/+8tV1IrL6cdw3Zjc1" },
+        { label: "Official Gmail", value: settings?.supportOfficialGmail || "fxwallet@gmail.com", link: settings?.supportOfficialGmail ? `mailto:${settings.supportOfficialGmail}` : undefined },
+        { label: "Customer Support", value: settings?.supportCustomerSupport || "@FXwallet70", link: settings?.supportCustomerSupport?.startsWith("http") ? settings.supportCustomerSupport : "https://t.me/FXwallet70" },
       ],
     },
     {
@@ -131,7 +131,7 @@ export default function Settings() {
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
-                    color: "#8B2635",
+                    color: "#3b82f6",
                     fontSize: 14,
                     fontWeight: 600,
                     textDecoration: "none",
