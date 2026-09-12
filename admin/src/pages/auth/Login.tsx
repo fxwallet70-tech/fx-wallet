@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { loginRequest } from "../../services/authService";
 import { useAuth } from "../../context/AuthContext";
+import { consumeSessionExpired } from "../../api/session";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -11,11 +12,18 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // Surfaces "your session expired" when the admin was bounced here by a 401.
+  const [notice] = useState(() =>
+    consumeSessionExpired()
+      ? "Your session has expired. Please log in again."
+      : ""
+  );
+
   async function handleLogin() {
     try {
       const data = await loginRequest(email, password);
 
-      login(data.token, email);
+      login(data.token, email, data.refreshToken);
 
       navigate("/dashboard");
     } catch (error: any) {
@@ -40,6 +48,10 @@ export default function Login() {
 
         <p>Admin Panel</p>
 
+        {notice && (
+          <p style={{ color: "#DC2626", fontSize: "0.875rem" }}>{notice}</p>
+        )}
+
         <input
           placeholder="Email"
           value={email}
@@ -59,4 +71,4 @@ export default function Login() {
       </div>
     </div>
   );
-}
+}

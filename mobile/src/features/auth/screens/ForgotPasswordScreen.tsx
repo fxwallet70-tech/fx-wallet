@@ -34,12 +34,40 @@ const ForgotPasswordScreen = () => {
       setIsLoading(true);
       const response = await forgotPassword(email.trim());
 
-      if (response.mobile) {
-        setMobile(response.mobile);
-        setStep('reset');
+      // The server never reveals whether an account exists, so it answers the
+      // same way for an unknown address - and sends nothing. Claiming an OTP was
+      // sent here is a lie the user only discovers when no email ever arrives.
+      if (!response.mobile) {
+        Alert.alert(
+          'Check Your Email',
+          response.message ||
+            'If that email is registered, a reset code is on its way.',
+        );
+        return;
       }
 
-      Alert.alert('OTP Sent', response.message);
+      setMobile(response.mobile);
+      setStep('reset');
+
+      // Deployments older than the email version answer with the code itself
+      // instead of sending it. Surfacing it keeps the flow usable.
+      if (response.resetCode) {
+        console.warn(
+          'Backend returned resetCode directly: /auth/forgot-password is not sending email on this server.',
+        );
+
+        Alert.alert(
+          'Reset Code',
+          `This server did not send an email. Your reset code is ${response.resetCode}. Valid for 10 minutes.`,
+        );
+        return;
+      }
+
+      Alert.alert(
+        'Reset Code Sent',
+        response.message ||
+          'Check your inbox and spam folder for the 6-digit code.',
+      );
     } catch (error: any) {
       Alert.alert(
         'Error',
@@ -90,7 +118,8 @@ const ForgotPasswordScreen = () => {
       {step === 'email' ? (
         <>
           <Text style={styles.subtitle}>
-            Enter your registered email to receive an OTP.
+            Enter your registered email. We will send a 6-digit code to that
+            email (free, no SMS).
           </Text>
 
           <CustomInput
@@ -104,17 +133,21 @@ const ForgotPasswordScreen = () => {
           {isLoading ? (
             <ActivityIndicator size="large" color={Theme.colors.primary} />
           ) : (
-            <CustomButton title="Send OTP" onPress={handleSendOtp} />
+            <CustomButton
+              title="Send Reset Code"
+              onPress={handleSendOtp}
+            />
           )}
         </>
       ) : (
         <>
           <Text style={styles.subtitle}>
-            Enter the OTP sent to your mobile and set a new password.
+            Check your email inbox / spam for the 6-digit code, then set a new
+            password.
           </Text>
 
           <CustomInput
-            placeholder="Enter OTP"
+            placeholder="Enter 6-digit code from email"
             value={otp}
             onChangeText={setOtp}
             keyboardType="number-pad"

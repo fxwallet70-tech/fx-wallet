@@ -8,7 +8,6 @@ import {
   Text,
   StyleSheet,
   TextInput,
-  TouchableOpacity,
   ActivityIndicator,
   Alert,
   ScrollView,
@@ -23,6 +22,9 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {Ionicons} from '@react-native-vector-icons/ionicons';
+
+import {clearSession} from '../../../core/session/session';
+import {revokeSession} from '../../../core/session/tokenRefresh';
 
 import Theme from '../../../core/theme/theme';
 
@@ -292,7 +294,11 @@ const ProfileScreen = () => {
 
  const performLogout = async () => {
   try {
-    await AsyncStorage.removeMany(['authToken', 'userData']);
+    // Revoke the refresh token on the server first, so a copied one cannot be
+    // replayed after the user has logged out.
+    await revokeSession();
+
+    await clearSession();
 
     navigation.reset({
       index: 0,

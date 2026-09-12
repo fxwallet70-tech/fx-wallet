@@ -68,6 +68,22 @@ const userSchema = new mongoose.Schema(
       default: null,
     },
 
+    // Active refresh tokens (one per logged-in device). Only the SHA-256 digest
+    // is stored, and the field is never selected by default.
+    refreshSessions: {
+      type: [
+        new mongoose.Schema(
+          {
+            tokenHash: { type: String, required: true },
+            expiresAt: { type: Date, required: true },
+          },
+          { _id: false }
+        ),
+      ],
+      default: [],
+      select: false,
+    },
+
     referredBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',

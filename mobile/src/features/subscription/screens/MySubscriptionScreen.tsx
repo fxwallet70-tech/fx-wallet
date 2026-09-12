@@ -429,8 +429,6 @@ const MySubscriptionScreen = () => {
           <View
             style={[
               styles.statusBadge,
-              subscription.status === 'Pending' &&
-                styles.pendingStatusBadge,
               subscription.status === 'Expired' &&
                 styles.expiredStatusBadge,
               subscription.status === 'Cancelled' &&
@@ -439,8 +437,6 @@ const MySubscriptionScreen = () => {
             <Text
               style={[
                 styles.statusText,
-                subscription.status === 'Pending' &&
-                  styles.pendingStatusText,
                 subscription.status === 'Expired' &&
                   styles.expiredStatusText,
                 subscription.status ===

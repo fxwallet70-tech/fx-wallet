@@ -29,6 +29,11 @@ export default function VerifyOtp() {
       localStorage.setItem("authToken", response.token);
       localStorage.setItem("userData", JSON.stringify(response.user));
 
+      // Kept so the session can be renewed once the access token expires.
+      if (response.refreshToken) {
+        localStorage.setItem("refreshToken", response.refreshToken);
+      }
+
       navigate("/plans");
     } catch (err: any) {
       setError(err.response?.data?.message || "Invalid or expired OTP.");

@@ -2,7 +2,7 @@ const express = require('express');
 
 const router = express.Router();
 
-const { login } = require('../controllers/adminController');
+const { login, refresh, logout } = require('../controllers/adminController');
 const {
     getUsers,
     getUser,
@@ -17,6 +17,11 @@ const {
 const adminMiddleware = require('../middleware/adminMiddleware');
 
 router.post('/login', login);
+
+// Silent renewal of an expired admin access token, and revocation on logout.
+router.post('/refresh', refresh);
+
+router.post('/logout', adminMiddleware, logout);
 
 const {
   creditWallet,

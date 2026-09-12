@@ -35,3 +35,8 @@ Thumbs.db
 # Backend runtime data
 backend/uploads/
 backend/logs/
+
+# Local artifacts: debug screenshots and dev-server pid files
+/screenshot_*.png
+mobile/app_emulator.png
+*.pid

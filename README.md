@@ -60,7 +60,10 @@ npm start                # production
 |---|---|---|
 | `PORT` | optional | Server port (default `5000`) |
 | `MONGODB_URI` | **yes** | MongoDB connection string |
-| `JWT_SECRET` | **yes** | Secret used to sign auth tokens |
+| `JWT_SECRET` | **yes** | Secret used to sign access tokens |
+| `JWT_ACCESS_EXPIRES_IN` | optional | Access-token lifetime (default `1h`). Clients renew these silently, so it can stay short. |
+| `JWT_REFRESH_EXPIRES_IN` | optional | How long a login can be renewed before the user must log in again (default `365d`, e.g. `30d`, `365d`). Falls back to `JWT_EXPIRES_IN`. |
+| `JWT_REFRESH_SECRET` | optional | Separate secret for refresh tokens. Falls back to `JWT_SECRET`; changing it logs everyone out. |
 
 ### Default admin
 

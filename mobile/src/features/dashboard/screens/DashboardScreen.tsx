@@ -995,8 +995,6 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
-    backdropFilter: 'blur(20px) saturate(1.5)',
-    webkitBackdropFilter: 'blur(20px) saturate(1.5)',
     boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
   },
 
@@ -1027,8 +1025,6 @@ walletCard: {
     marginTop: 8,
     borderWidth: 1.5,
     borderColor: 'rgba(255, 255, 255, 0.3)',
-    backdropFilter: 'blur(20px) saturate(1.5)',
-    webkitBackdropFilter: 'blur(20px) saturate(1.5)',
     boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
   },
 
@@ -1118,8 +1114,6 @@ subscriptionCard: {
     marginBottom: 14,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
-    backdropFilter: 'blur(20px) saturate(1.5)',
-    webkitBackdropFilter: 'blur(20px) saturate(1.5)',
     boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
   },
 
@@ -1259,8 +1253,6 @@ subscriptionCard: {
     alignItems: 'flex-start',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
-    backdropFilter: 'blur(20px) saturate(1.5)',
-    webkitBackdropFilter: 'blur(20px) saturate(1.5)',
     boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
   },
 
@@ -1303,8 +1295,6 @@ subscriptionCard: {
     marginBottom: 10,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
-    backdropFilter: 'blur(20px) saturate(1.5)',
-    webkitBackdropFilter: 'blur(20px) saturate(1.5)',
     boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
   },
 

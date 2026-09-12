@@ -13,7 +13,7 @@ import {Ionicons} from '@react-native-vector-icons/ionicons';
 
 import Theme from '../../core/theme/theme';
 
-import { getSettings } from '../services/settingsService';
+import { getSettings } from '../../services/settingsService';
 
 interface SupportOption {
   icon: string;

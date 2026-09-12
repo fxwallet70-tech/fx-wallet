@@ -3,13 +3,14 @@ import {NavigationContainer} from '@react-navigation/native';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 
 import AppNavigator from './core/navigation/AppNavigator';
+import {navigationRef} from './core/navigation/navigationRef';
 import AppBackground from './shared/components/AppBackground';
 
 const App = () => {
   return (
     <SafeAreaProvider>
       <AppBackground>
-        <NavigationContainer>
+        <NavigationContainer ref={navigationRef}>
           <AppNavigator />
         </NavigationContainer>
       </AppBackground>

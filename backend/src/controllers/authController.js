@@ -1,7 +1,15 @@
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 
 const User = require('../models/User');
+const { sendPasswordResetEmail } = require('../utils/sendEmail');
+const {
+  verifyRefreshToken,
+  hashToken,
+  findSession,
+  issueTokens,
+  revokeSession,
+  clearSessions,
+} = require('../utils/tokens');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MOBILE_REGEX = /^[6-9]\d{9}$/;
@@ -86,12 +94,15 @@ const register = async (req, res) => {
       }
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    // Access token for immediate use, plus a refresh token so the session can be
+    // renewed silently for as long as JWT_REFRESH_EXPIRES_IN allows.
+    const { token, refreshToken } = await issueTokens(user, { id: user._id });
 
     return res.status(201).json({
       success: true,
       message: 'Registration successful.',
       token,
+      refreshToken,
       user: {
         id: user._id,
         fullName: user.fullName,
@@ -131,12 +142,15 @@ const login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid email or password' });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    // Access token for immediate use, plus a refresh token so the session can be
+    // renewed silently for as long as JWT_REFRESH_EXPIRES_IN allows.
+    const { token, refreshToken } = await issueTokens(user, { id: user._id });
 
     return res.status(200).json({
       success: true,
       message: 'Login successful',
       token,
+      refreshToken,
       user: {
         id: user._id,
         fullName: user.fullName,
@@ -187,7 +201,7 @@ const changePassword = async (req, res) => {
   }
 };
 
-// Step 1: request password reset - generates a reset code (no SMS/Twilio).
+// Step 1: request password reset - generates a 6-digit code and emails it (free Gmail SMTP).
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -199,7 +213,7 @@ const forgotPassword = async (req, res) => {
     const user = await User.findOne({ email: email.trim().toLowerCase() });
 
     // Do not reveal whether the account is registered.
-    const notFoundMessage = 'If this email is registered, a reset code has been generated.';
+    const notFoundMessage = 'If this email is registered, a reset code has been sent.';
 
     if (!user) {
       return res.status(200).json({ success: true, message: notFoundMessage });
@@ -211,13 +225,25 @@ const forgotPassword = async (req, res) => {
     user.resetCodeExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
     await user.save();
 
+    try {
+      await sendPasswordResetEmail({
+        to: user.email,
+        fullName: user.fullName,
+        code,
+      });
+    } catch (mailError) {
+      console.error('Forgot password email failed:', mailError.message);
+      return res.status(500).json({
+        success: false,
+        message: 'Unable to send reset email. Please try again later or contact support on Telegram @FXwallet70.',
+      });
+    }
+
+    // NOTE: resetCode is intentionally NOT returned — user must read it from email.
     return res.status(200).json({
       success: true,
-      message: `A reset code has been generated for ${user.email}.`,
+      message: `A reset code has been sent to ${user.email}. Check inbox / spam. Valid for 10 minutes.`,
       mobile: user.mobile,
-      // No SMS/email provider is configured, so the code is returned to the
-      // client to keep the password-reset flow usable without Twilio.
-      resetCode: code,
     });
   } catch (error) {
     console.error('Forgot password error:', error);
@@ -276,9 +302,84 @@ const resetPassword = async (req, res) => {
   }
 };
 
+// Step 3: exchange a valid refresh token for a new access token. The refresh
+// token is rotated on every call and the used one is dropped, so a stolen copy
+// stops working as soon as the real client refreshes.
+const refresh = async (req, res) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({ success: false, message: 'Refresh token is required' });
+    }
+
+    let decoded;
+
+    try {
+      decoded = verifyRefreshToken(refreshToken);
+    } catch (tokenError) {
+      return res.status(401).json({ success: false, message: 'Session expired. Please log in again.' });
+    }
+
+    // refreshSessions is not selected by default, so it must be asked for.
+    const user = await User.findById(decoded.id).select('+refreshSessions');
+
+    if (!user || !user.isActive) {
+      return res.status(401).json({ success: false, message: 'Session expired. Please log in again.' });
+    }
+
+    const session = findSession(user, refreshToken);
+
+    if (!session) {
+      // Signed correctly but no longer on the account: the token was already
+      // rotated or revoked. Treat it as a replay and drop every session.
+      await clearSessions(user);
+
+      return res.status(401).json({ success: false, message: 'Session expired. Please log in again.' });
+    }
+
+    const tokens = await issueTokens(user, { id: user._id }, hashToken(refreshToken));
+
+    return res.status(200).json({
+      success: true,
+      message: 'Session refreshed',
+      ...tokens,
+    });
+  } catch (error) {
+    console.error('Refresh token error:', error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+// Logout - revokes the refresh token so a copied one cannot be replayed, then the
+// client clears its own copy.
+const logout = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (user) {
+      const { refreshToken } = req.body;
+
+      if (refreshToken) {
+        await revokeSession(user, refreshToken);
+      } else {
+        // No token supplied: end every session on the account.
+        await clearSessions(user);
+      }
+    }
+
+    return res.status(200).json({ success: true, message: 'Logged out' });
+  } catch (error) {
+    console.error('Logout error:', error);
+    return res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
 module.exports = {
   register,
   login,
+  refresh,
+  logout,
   changePassword,
   forgotPassword,
   resetPassword,

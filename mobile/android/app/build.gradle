@@ -57,7 +57,7 @@ react {
 /**
  * Set this to true to Run Proguard on Release builds to minify the Java bytecode.
  */
-def enableProguardInReleaseBuilds = false
+def enableProguardInReleaseBuilds = true
 
 /**
  * The preferred build flavor of JavaScriptCore (JSC)
@@ -82,9 +82,30 @@ android {
         applicationId "com.nexora.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 6
-        versionName "1.0.5"
+        versionCode 7
+        versionName "1.0.6"
+
+        /*
+         * The app ships English only, but the AndroidX libraries it depends on
+         * bundle translations for every locale. Those strings are a large part
+         * of resources.arsc, so keeping just English drops them.
+         */
+        resConfigs "en"
     }
+    packagingOptions {
+        pickFirst '**/libc++_shared.so'
+
+        /*
+         * Store the native libraries compressed instead of page-aligned and
+         * uncompressed. The .so files are most of this APK, so compressing them
+         * is the single biggest download-size win available: Android unpacks
+         * them on install.
+         */
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     signingConfigs {
         debug {
             storeFile file('debug.keystore')
@@ -106,12 +127,13 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
-            
             signingConfig signingConfigs.release
             minifyEnabled enableProguardInReleaseBuilds
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            shrinkResources true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            ndk {
+                abiFilters "arm64-v8a"
+            }
         }
     }
 }
@@ -126,5 +148,4 @@ dependencies {
         implementation jscFlavor
     }
 
-    implementation("com.startapp:inapp-sdk:5.2.6")
 }

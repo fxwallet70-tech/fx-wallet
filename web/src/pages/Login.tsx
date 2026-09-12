@@ -3,6 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 
 import { loginUser } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
+import { consumeSessionExpired } from "../api/session";
 import "../styles/auth.css";
 
 export default function Login() {
@@ -11,7 +12,12 @@ export default function Login() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  // Surfaces "your session expired" when the user was bounced here by a 401.
+  const [error, setError] = useState(() =>
+    consumeSessionExpired()
+      ? "Your session has expired. Please log in again."
+      : ""
+  );
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,7 +34,7 @@ export default function Login() {
       const response = await loginUser({ email: email.trim(), password });
 
       // Use AuthContext.login() so ProtectedRoute recognizes the user immediately
-      login(response.token, response.user);
+      login(response.token, response.user, response.refreshToken);
 
       navigate("/plans");
     } catch (err: any) {
@@ -76,4 +82,4 @@ export default function Login() {
       </form>
     </div>
   );
-}
+}

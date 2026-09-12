@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import api from "../api/axios";
+import { SESSION_EXPIRED_EVENT, clearSession } from "../api/session";
+import { ensureValidSession, revokeSession } from "../api/tokenRefresh";
 
 const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === "true";
 
@@ -25,7 +27,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (token: string, user: User) => void;
+  login: (token: string, user: User, refreshToken?: string) => void;
   logout: () => void;
   refreshUser: () => Promise<void>;
   isAuthenticated: boolean;
@@ -39,14 +41,64 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("authToken");
-    const storedUser = localStorage.getItem("userData");
+    if (DEMO_MODE) {
+      setLoading(false);
 
-    if (!DEMO_MODE && storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
+      return;
     }
-    setLoading(false);
+
+    let cancelled = false;
+
+    const restoreSession = async () => {
+      // An expired access token is renewed here when the refresh token is still
+      // alive, so a returning user is not pushed back to the login page.
+      const usable = await ensureValidSession();
+
+      if (cancelled) {
+        return;
+      }
+
+      const storedUser = localStorage.getItem("userData");
+
+      if (!usable || !storedUser) {
+        // Stale or half-written session: drop it, don't let it grant access.
+        clearSession();
+
+        return;
+      }
+
+      try {
+        setUser(JSON.parse(storedUser));
+        setToken(localStorage.getItem("authToken"));
+      } catch {
+        clearSession();
+      }
+    };
+
+    restoreSession().finally(() => {
+      if (!cancelled) {
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // A 401 from any API call means the session is gone: drop the in-memory user
+  // so ProtectedRoute sends the browser back to the login page.
+  useEffect(() => {
+    const onSessionExpired = () => {
+      setToken(null);
+      setUser(null);
+    };
+
+    window.addEventListener(SESSION_EXPIRED_EVENT, onSessionExpired);
+
+    return () => {
+      window.removeEventListener(SESSION_EXPIRED_EVENT, onSessionExpired);
+    };
   }, []);
 
   const refreshUser = async () => {
@@ -64,18 +116,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const login = (newToken: string, userData: User) => {
+  const login = (newToken: string, userData: User, refreshToken?: string) => {
     setToken(newToken);
     setUser(userData);
     localStorage.setItem("authToken", newToken);
     localStorage.setItem("userData", JSON.stringify(userData));
+
+    // Stored so the session can be renewed once the access token expires.
+    if (refreshToken) {
+      localStorage.setItem("refreshToken", refreshToken);
+    }
   };
 
   const logout = () => {
+    // Best effort: revoke the refresh token server-side first, before the local
+    // copy is dropped.
+    void revokeSession();
+
     setToken(null);
     setUser(null);
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("userData");
+    clearSession();
   };
 
   return (

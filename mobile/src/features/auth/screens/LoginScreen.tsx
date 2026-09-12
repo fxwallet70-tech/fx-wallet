@@ -53,6 +53,7 @@ const LoginScreen = ({navigation}: Props) => {
       console.log('LOGIN RESPONSE:', response.data);
 
       const token = response.data?.token;
+      const refreshToken = response.data?.refreshToken;
       const user = response.data?.user;
 
       if (!response.data?.success) {
@@ -85,6 +86,11 @@ const LoginScreen = ({navigation}: Props) => {
           'userData',
           JSON.stringify(user),
         );
+
+        // Lets the session be renewed silently once the access token expires.
+        if (refreshToken) {
+          await AsyncStorage.setItem('refreshToken', refreshToken);
+        }
       } catch (storageError: any) {
         console.log('STORAGE ERROR:', storageError);
 

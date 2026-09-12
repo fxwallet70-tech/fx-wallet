@@ -30,12 +30,35 @@ export default function ForgotPassword() {
       setLoading(true);
       const response = await forgotPassword(email.trim());
 
-      if (response.mobile) {
-        setMobile(response.mobile);
-        setStep("reset");
+      // The server never reveals whether an account exists, so it answers the
+      // same way for an unknown address - and sends nothing. Claiming an OTP was
+      // sent here is a lie the user only discovers when no email ever arrives.
+      if (!response.mobile) {
+        setMessage(
+          response.message ||
+            "If that email is registered, a reset code is on its way."
+        );
+        return;
       }
 
-      setMessage(response.message);
+      setMobile(response.mobile);
+      setStep("reset");
+
+      // Deployments older than the email version answer with the code itself
+      // instead of sending it. Surfacing it keeps the flow usable.
+      if (response.resetCode) {
+        console.warn(
+          "Backend returned resetCode directly: /auth/forgot-password is not sending email on this server."
+        );
+        setMessage(
+          `This server did not send an email. Your reset code is ${response.resetCode} (valid 10 minutes).`
+        );
+        return;
+      }
+
+      setMessage(
+        response.message || "Check your inbox and spam folder for the 6-digit code."
+      );
     } catch (err: any) {
       setError(err.response?.data?.message || "Unable to send OTP.");
     } finally {
@@ -79,8 +102,8 @@ export default function ForgotPassword() {
         <div className="auth-title">Forgot Password</div>
         <div className="auth-subtitle">
           {step === "email"
-            ? "Enter your registered email to receive an OTP."
-            : "Enter the OTP and set a new password."}
+            ? "Enter your registered email. We will send a 6-digit code to that email (free, no SMS)."
+            : "Check your email inbox / spam for the 6-digit code, then set a new password."}
         </div>
 
         {error && <div className="auth-error">{error}</div>}
@@ -102,7 +125,7 @@ export default function ForgotPassword() {
           <>
             <input
               className="auth-input"
-              placeholder="Enter OTP"
+              placeholder="Enter 6-digit code from email"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
               maxLength={6}

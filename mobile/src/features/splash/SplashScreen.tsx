@@ -8,7 +8,8 @@ import {
 
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../../core/navigation/types';
-import {getToken} from '../../core/storage/storage';
+import {clearSession} from '../../core/session/session';
+import {ensureValidSession} from '../../core/session/tokenRefresh';
 import Theme from '../../core/theme/theme';
 
 type Props = NativeStackScreenProps<
@@ -42,10 +43,16 @@ const SplashScreen = ({navigation}: Props) => {
     ]).start();
 
     const checkAuth = async () => {
-      const token = await getToken();
+      // Renews quietly when the access token has expired but the session is
+      // still alive, so a returning user lands straight in the app.
+      const hasValidSession = await ensureValidSession();
+
+      if (!hasValidSession) {
+        await clearSession();
+      }
 
       setTimeout(() => {
-        if (token) {
+        if (hasValidSession) {
           navigation.replace('Main');
         } else {
           navigation.replace('Login');
