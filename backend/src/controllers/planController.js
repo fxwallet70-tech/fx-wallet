@@ -1,5 +1,9 @@
 const Plan = require('../models/Plan');
 
+const {
+  validatePlanDuration,
+} = require('../utils/duration');
+
 // Get all plans
 const getPlans = async (req, res) => {
   try {
@@ -51,6 +55,8 @@ const addPlan = async (req, res) => {
       category = 'General',
       price,
       duration,
+      durationHours,
+      durationMinutes,
       returnAmount = 0,
       displayOrder = 1,
       status = true,
@@ -74,14 +80,16 @@ const addPlan = async (req, res) => {
       });
     }
 
-    if (
-      duration === undefined ||
-      Number.isNaN(Number(duration)) ||
-      Number(duration) < 1
-    ) {
+    const durationCheck = validatePlanDuration({
+      duration,
+      durationHours,
+      durationMinutes,
+    });
+
+    if (!durationCheck.valid) {
       return res.status(400).json({
         success: false,
-        message: 'Duration must be at least 1 day',
+        message: durationCheck.message,
       });
     }
 
@@ -101,7 +109,10 @@ const addPlan = async (req, res) => {
       image: image.trim(),
       category: category.trim() || 'General',
       price: Number(price),
-      duration: Number(duration),
+      duration: durationCheck.value.days,
+      durationHours: durationCheck.value.hours,
+      durationMinutes:
+        durationCheck.value.minutes,
       returnAmount: Number(returnAmount),
       displayOrder: Number(displayOrder),
       status: Boolean(status),
@@ -141,6 +152,8 @@ const updatePlan = async (req, res) => {
       category,
       price,
       duration,
+      durationHours,
+      durationMinutes,
       returnAmount,
       displayOrder,
       status,
@@ -184,18 +197,44 @@ const updatePlan = async (req, res) => {
       existingPlan.price = Number(price);
     }
 
-    if (duration !== undefined) {
-      if (
-        Number.isNaN(Number(duration)) ||
-        Number(duration) < 1
-      ) {
+    /*
+     * Duration is validated as a whole (days + hours + minutes) so the stored
+     * plan always adds up to at least 1 minute. Fields that were not sent keep
+     * the value already stored on the plan.
+     */
+    if (
+      duration !== undefined ||
+      durationHours !== undefined ||
+      durationMinutes !== undefined
+    ) {
+      const durationCheck = validatePlanDuration({
+        duration:
+          duration !== undefined
+            ? duration
+            : existingPlan.duration,
+        durationHours:
+          durationHours !== undefined
+            ? durationHours
+            : existingPlan.durationHours,
+        durationMinutes:
+          durationMinutes !== undefined
+            ? durationMinutes
+            : existingPlan.durationMinutes,
+      });
+
+      if (!durationCheck.valid) {
         return res.status(400).json({
           success: false,
-          message: 'Duration must be at least 1 day',
+          message: durationCheck.message,
         });
       }
 
-      existingPlan.duration = Number(duration);
+      existingPlan.duration =
+        durationCheck.value.days;
+      existingPlan.durationHours =
+        durationCheck.value.hours;
+      existingPlan.durationMinutes =
+        durationCheck.value.minutes;
     }
 
     if (returnAmount !== undefined) {

@@ -664,6 +664,21 @@ background:#f8fafc;
   margin-top: 26px;
 }
 
+/*
+ * Plan duration — days, hours and minutes entered side by side.
+ * "1 day 2 hours 30 minutes" is a valid plan length.
+ */
+.duration-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.duration-hint {
+  color: #64748b;
+  font-size: 12px;
+}
+
 .primary-button,
 .secondary-button {
   padding: 10px 18px;
@@ -702,6 +717,10 @@ background:#f8fafc;
 
   .form-group.full-width {
     grid-column: auto;
+  }
+
+  .duration-fields {
+    grid-template-columns: 1fr;
   }
 }
 /* =========================================================

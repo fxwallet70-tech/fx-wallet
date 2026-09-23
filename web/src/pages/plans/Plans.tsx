@@ -4,6 +4,7 @@ import { getPlans, subscribePlan } from "../../services/planService";
 import { getCdmSetting, submitCdmRequest } from "../../services/cdmService";
 import type { Plan } from "../../services/planService";
 import { SERVER_BASE_URL } from "../../api/axios";
+import { formatPlanDuration } from "../../utils/duration";
 
 function TiltCard({ children }: { children: React.ReactNode }) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -285,7 +286,7 @@ export default function Plans() {
                 <div style={{ textAlign: "right" }}>
                   <div style={{ color: "#94a3b8", fontSize: 11 }}>Duration</div>
                   <div style={{ color: "#fff", fontSize: 20, fontWeight: 800, marginTop: 4 }}>
-                    {plan.duration} days
+                    {formatPlanDuration(plan)}
                   </div>
                 </div>
                 <div>
@@ -357,7 +358,7 @@ export default function Plans() {
                 >
                   <span style={{ color: "#94a3b8" }}>Duration</span>
                   <span style={{ color: "#fff", fontWeight: 700 }}>
-                    {selectedPlan.duration} days
+                    {formatPlanDuration(selectedPlan)}
                   </span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between" }}>

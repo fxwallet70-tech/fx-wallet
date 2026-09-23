@@ -28,6 +28,8 @@ export interface Subscription {
     name?: string;
     price?: number;
     duration?: number;
+    durationHours?: number;
+    durationMinutes?: number;
     returnAmount?: number;
     description?: string;
     category?: string;

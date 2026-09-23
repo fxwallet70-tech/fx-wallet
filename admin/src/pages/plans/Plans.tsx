@@ -6,6 +6,7 @@ import {
   getPlans,
   deletePlan,
 } from "../../services/planService";
+import { formatPlanDuration } from "../../utils/duration";
 
 interface Plan {
   _id: string;
@@ -13,6 +14,8 @@ interface Plan {
   category: string;
   price: number;
   duration: number;
+  durationHours?: number;
+  durationMinutes?: number;
   returnAmount?: number;
   status: boolean;
 }
@@ -138,8 +141,7 @@ export default function Plans() {
                     </td>
 
                     <td>
-                      {Number(plan.duration || 0)}{" "}
-                      days
+                      {formatPlanDuration(plan)}
                     </td>
 
                     <td>

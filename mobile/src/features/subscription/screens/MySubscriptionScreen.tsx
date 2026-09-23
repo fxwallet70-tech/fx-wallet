@@ -28,6 +28,11 @@ import {
 import PressableScale from '../../../shared/components/animations/PressableScale';
 import HoverWiggle from '../../../shared/components/animations/HoverWiggle';
 import GlassCard from '../../../shared/components/Card/GlassCard';
+import {
+  formatPlanDuration,
+  formatRemainingTime,
+  getRemainingBadge,
+} from '../../../shared/utils/duration';
 
 const MySubscriptionScreen = () => {
   const navigation = useNavigation<any>();
@@ -102,28 +107,6 @@ const MySubscriptionScreen = () => {
         month: 'short',
         year: 'numeric',
       },
-    );
-  };
-
-  const getDaysRemaining = (
-    endDate?: string,
-  ) => {
-    if (!endDate) {
-      return 0;
-    }
-
-    const today = new Date();
-    const expiry = new Date(endDate);
-
-    const difference =
-      expiry.getTime() - today.getTime();
-
-    return Math.max(
-      0,
-      Math.ceil(
-        difference /
-          (1000 * 60 * 60 * 24),
-      ),
     );
   };
 
@@ -339,7 +322,9 @@ const MySubscriptionScreen = () => {
 
             <DetailRow
               label="Duration"
-              value={`${subscription.plan?.duration || 0} days`}
+              value={formatPlanDuration(
+                subscription.plan || {},
+              )}
             />
 
             <DetailRow
@@ -368,9 +353,6 @@ const MySubscriptionScreen = () => {
       </ScrollView>
     );
   }
-
-  const daysRemaining =
-    getDaysRemaining(subscription.endDate);
 
   const returnAmount = Number(
     subscription.returnAmount ??
@@ -455,12 +437,30 @@ const MySubscriptionScreen = () => {
 
         <GlassCard style={styles.summaryContainer}>
           <View style={styles.summaryBox}>
-            <Text style={styles.summaryValue}>
-              {daysRemaining}
+            <Text
+              numberOfLines={1}
+              style={styles.summaryValue}>
+              {
+                getRemainingBadge(
+                  subscription.endDate,
+                  {
+                    days: 'Days Remaining',
+                    short: 'Time Remaining',
+                  },
+                ).value
+              }
             </Text>
 
             <Text style={styles.summaryLabel}>
-              Days Remaining
+              {
+                getRemainingBadge(
+                  subscription.endDate,
+                  {
+                    days: 'Days Remaining',
+                    short: 'Time Remaining',
+                  },
+                ).caption
+              }
             </Text>
           </View>
 
@@ -494,9 +494,9 @@ const MySubscriptionScreen = () => {
 
           <DetailRow
             label="Duration"
-            value={`${
-              subscription.plan?.duration || 0
-            } days`}
+            value={formatPlanDuration(
+              subscription.plan || {},
+            )}
           />
 
           <DetailRow
@@ -608,7 +608,9 @@ const MySubscriptionScreen = () => {
 
             Alert.alert(
               'Subscription Active',
-              `Your plan is active for ${daysRemaining} more days. Expected return is ₹${returnAmount.toFixed(
+              `Your plan has ${formatRemainingTime(
+                subscription.endDate,
+              )} left. Expected return is ₹${returnAmount.toFixed(
                 2,
               )}.`,
             );

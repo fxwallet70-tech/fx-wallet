@@ -9,6 +9,7 @@ const Subscription = require("../models/Subscription");
 const WalletTransaction = require("../models/WalletTransaction");
 const ReferralSettings = require("../models/ReferralSettings");
 const { sendNotification } = require("../services/notificationService");
+const { buildEndDate } = require("../utils/duration");
 
 /* --------------------------------------------------------------------
  * CDM deposit instructions (admin manages, user sees)
@@ -148,8 +149,11 @@ const createCdmRequest = async (req, res) => {
      * it in My Subscription while waiting for admin approval.
      */
     const startDate = new Date();
-    const endDate = new Date(startDate);
-    endDate.setDate(endDate.getDate() + Number(plan.duration));
+
+    /*
+     * Maturity = start + the plan's full length (days + hours + minutes).
+     */
+    const endDate = buildEndDate(startDate, plan);
 
     const subscription = await Subscription.create({
       user: userId,
@@ -194,7 +198,7 @@ const getMyCdmRequests = async (req, res) => {
       user: req.user.id,
       type: "plan_cdm",
     })
-      .populate("plan", "title price duration")
+      .populate("plan", "title price duration durationHours durationMinutes")
       .populate("payment", "amount status receipt")
       .populate("subscription", "status startDate endDate")
       .sort({ createdAt: -1 });
@@ -213,7 +217,7 @@ const getAllCdmRequests = async (req, res) => {
   try {
     const proofs = await PaymentProof.find({ type: "plan_cdm" })
       .populate("user", "fullName email mobile")
-      .populate("plan", "title price duration returnAmount")
+      .populate("plan", "title price duration durationHours durationMinutes returnAmount")
       .populate("payment", "amount status method transactionId")
       .populate("subscription", "status startDate endDate")
       .sort({ createdAt: -1 });
@@ -319,8 +323,12 @@ const updateCdmRequestStatus = async (req, res) => {
       await subscription.save();
     } else {
       const startDate = new Date();
-      const endDate = new Date(startDate);
-      endDate.setDate(endDate.getDate() + Number(plan.duration));
+
+      /*
+       * Legacy request without a subscription: the plan starts now and runs
+       * for its full length (days + hours + minutes).
+       */
+      const endDate = buildEndDate(startDate, plan);
 
       subscription = await Subscription.create({
         user: proof.user,

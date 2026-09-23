@@ -32,10 +32,31 @@ const planSchema = new mongoose.Schema(
       min: 0,
     },
 
+    /*
+     * Duration is stored as days + hours + minutes so a plan can run shorter
+     * than a day (e.g. 2 hours) or exactly on an hour/minute boundary
+     * (e.g. 1 day 2 hours 30 minutes). `duration` holds the days part and
+     * stays required for backwards compatibility with older plan documents.
+     */
     duration: {
       type: Number,
       required: true,
-      min: 1,
+      default: 0,
+      min: 0,
+    },
+
+    durationHours: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 23,
+    },
+
+    durationMinutes: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 59,
     },
 
     returnAmount: {

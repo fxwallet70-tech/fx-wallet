@@ -9,6 +9,10 @@ import {
   getPlan,
   updatePlan,
 } from "../../services/planService";
+import {
+  formatPlanDuration,
+  validatePlanDurationInput,
+} from "../../utils/duration";
 
 export default function EditPlan() {
   const { id } = useParams();
@@ -21,6 +25,8 @@ export default function EditPlan() {
     image: "",
     price: 0,
     duration: 30,
+    durationHours: 0,
+    durationMinutes: 0,
     returnAmount: 0,
     displayOrder: 1,
     status: true,
@@ -52,7 +58,9 @@ export default function EditPlan() {
         category: plan.category || "General",
         image: plan.image || "",
         price: Number(plan.price || 0),
-        duration: Number(plan.duration || 30),
+        duration: Number(plan.duration || 0),
+        durationHours: Number(plan.durationHours || 0),
+        durationMinutes: Number(plan.durationMinutes || 0),
         returnAmount: Number(
           plan.returnAmount || 0
         ),
@@ -90,6 +98,8 @@ export default function EditPlan() {
       [name]:
         name === "price" ||
         name === "duration" ||
+        name === "durationHours" ||
+        name === "durationMinutes" ||
         name === "returnAmount" ||
         name === "displayOrder"
           ? Number(value)
@@ -107,8 +117,10 @@ export default function EditPlan() {
       return;
     }
 
-    if (form.duration < 1) {
-      alert("Duration must be at least 1 day");
+    const durationError = validatePlanDurationInput(form);
+
+    if (durationError) {
+      alert(durationError);
       return;
     }
 
@@ -128,6 +140,8 @@ export default function EditPlan() {
         image: form.image.trim(),
         price: Number(form.price),
         duration: Number(form.duration),
+        durationHours: Number(form.durationHours),
+        durationMinutes: Number(form.durationMinutes),
         returnAmount: Number(form.returnAmount),
         displayOrder: Number(form.displayOrder),
       });
@@ -223,15 +237,53 @@ export default function EditPlan() {
               />
             </div>
 
-            <div className="form-group">
-              <label>Duration in Days</label>
-              <input
-                type="number"
-                min="1"
-                name="duration"
-                value={form.duration}
-                onChange={handleChange}
-              />
+            <div className="form-group full-width">
+              <label>Duration</label>
+
+              <div className="duration-fields">
+                <div className="form-group">
+                  <label>Days</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    name="duration"
+                    value={form.duration}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Hours (0-23)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="23"
+                    step="1"
+                    name="durationHours"
+                    value={form.durationHours}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Minutes (0-59)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="59"
+                    step="1"
+                    name="durationMinutes"
+                    value={form.durationMinutes}
+                    onChange={handleChange}
+                  />
+                </div>
+              </div>
+
+              <span className="duration-hint">
+                Plan runs for {formatPlanDuration(form)}. Use hours and minutes
+                for plans shorter than a day, e.g. 0 days, 2 hours, 30 minutes.
+              </span>
             </div>
 
             <div className="form-group">

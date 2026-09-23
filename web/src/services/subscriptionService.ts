@@ -8,6 +8,8 @@ export interface MySubscription {
     description?: string;
     price?: number;
     duration?: number;
+    durationHours?: number;
+    durationMinutes?: number;
     returnAmount?: number;
     image?: string;
   };

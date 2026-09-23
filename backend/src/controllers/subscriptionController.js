@@ -9,6 +9,10 @@ const {
   sendNotification,
 } = require('../services/notificationService');
 
+const {
+  buildEndDate,
+} = require('../utils/duration');
+
 // Get all subscriptions
 const getSubscriptions = async (req, res) => {
   try {
@@ -97,7 +101,7 @@ const subscribePlan = async (req, res) => {
         endDate: {$gte: now},
       }).populate(
         "plan",
-        "title price duration",
+        "title price duration durationHours durationMinutes",
       );
 
     if (existingSubscription) {
@@ -163,11 +167,11 @@ const subscribePlan = async (req, res) => {
     debitedAmount = planPrice;
 
     const startDate = new Date();
-    const endDate = new Date(startDate);
 
-    endDate.setDate(
-      endDate.getDate() + Number(plan.duration),
-    );
+    /*
+     * Maturity = start + the plan's full length (days + hours + minutes).
+     */
+    const endDate = buildEndDate(startDate, plan);
 
     createdSubscription =
       await Subscription.create({
@@ -350,7 +354,7 @@ const getUserSubscription = async (
    })
     .populate(
       "plan",
-      "title description price duration returnAmount category image",
+      "title description price duration durationHours durationMinutes returnAmount category image",
     )
     .sort({
       createdAt: -1,
@@ -386,7 +390,7 @@ const getSubscriptionHistory = async (
       })
         .populate(
           'plan',
-          'title price duration category',
+          'title price duration durationHours durationMinutes category',
         )
         .sort({
           createdAt: -1,
@@ -431,11 +435,11 @@ const renewSubscription = async (req, res) => {
     const renewalStart =
       currentEndDate > today ? currentEndDate : today;
 
-    renewalStart.setDate(
-      renewalStart.getDate() + subscription.plan.duration
+    // Extend by the plan's full length (days + hours + minutes).
+    subscription.endDate = buildEndDate(
+      renewalStart,
+      subscription.plan,
     );
-
-    subscription.endDate = renewalStart;
     subscription.status = "Active";
     subscription.amountPaid += subscription.plan.price;
 

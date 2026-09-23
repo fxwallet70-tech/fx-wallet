@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import AdminLayout from '../../layouts/AdminLayout';
 import { getCdmRequests, updateCdmRequestStatus } from '../../services/cdmService';
+import { formatPlanDuration } from '../../utils/duration';
 
 const API_BASE = 'https://site--fx-wallet--y5mbl8ygpzzy.code.run';
 
@@ -16,6 +17,8 @@ interface CdmRequest {
     title: string;
     price: number;
     duration: number;
+    durationHours?: number;
+    durationMinutes?: number;
   };
   payment: {
     amount: number;
@@ -140,7 +143,7 @@ export default function CdmRequests() {
                       <br />
                       ₹{Number(req.payment?.amount ?? req.plan?.price ?? 0).toFixed(2)}
                       <br />
-                      {req.plan?.duration ?? 0} days
+                      {formatPlanDuration(req.plan || {})}
                     </td>
 
                     <td>

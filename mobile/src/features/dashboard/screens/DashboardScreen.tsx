@@ -21,6 +21,7 @@ import FadeInView from '../../../shared/components/animations/FadeInView';
 import PressableScale from '../../../shared/components/animations/PressableScale';
 import HoverWiggle from '../../../shared/components/animations/HoverWiggle';
 import GlassCard from '../../../shared/components/Card/GlassCard';
+import {getRemainingBadge} from '../../../shared/utils/duration';
 
 interface DashboardUser {
   id: string;
@@ -579,12 +580,22 @@ const DashboardScreen = () => {
 
               {subscription.status !== 'Pending' ? (
                 <View style={styles.daysBadge}>
-                  <Text style={styles.daysValue}>
-                    {subscription.daysRemaining}
+                  <Text
+                    numberOfLines={1}
+                    style={styles.daysValue}>
+                    {
+                      getRemainingBadge(
+                        subscription.endDate,
+                      ).value
+                    }
                   </Text>
 
                   <Text style={styles.daysText}>
-                    days left
+                    {
+                      getRemainingBadge(
+                        subscription.endDate,
+                      ).caption
+                    }
                   </Text>
                 </View>
               ) : (

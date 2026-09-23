@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { getDashboard } from "../../services/dashboardService";
 import type { DashboardData, Transaction } from "../../services/dashboardService";
+import { getRemainingBadge } from "../../utils/duration";
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -235,9 +236,11 @@ export default function Dashboard() {
                   textAlign: "center",
                 }}
               >                   <div style={{ color: "#60a5fa", fontSize: 19, fontWeight: 800 }}>
-                  {sub.daysRemaining}
+                  {getRemainingBadge(sub.endDate).value}
                 </div>
-                <div style={{ color: "#bfdbfe", fontSize: 10 }}>days left</div>
+                <div style={{ color: "#bfdbfe", fontSize: 10 }}>
+                  {getRemainingBadge(sub.endDate).caption}
+                </div>
               </div>
             </div>
             <div

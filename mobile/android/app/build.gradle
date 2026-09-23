@@ -82,8 +82,8 @@ android {
         applicationId "com.nexora.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 7
-        versionName "1.0.6"
+        versionCode 8
+        versionName "1.0.7"
 
         /*
          * The app ships English only, but the AndroidX libraries it depends on
@@ -136,6 +136,30 @@ android {
             }
         }
     }
+}
+
+/**
+ * Keep the release APK to a single ABI.
+ *
+ * reactNativeArchitectures in gradle.properties is pinned to x86_64 so the app
+ * can be run on an emulator, and that leaves an x86_64 copy of every React
+ * Native library inside the release build: a plain `./gradlew assembleRelease`
+ * produced an 18 MB fat APK instead of the 12.5 MB arm64 one. The build type's
+ * abiFilters does not drop those prebuilt libraries, so exclude them here. The
+ * debug/emulator build is untouched.
+ *
+ * Emulator release build (not for distribution):
+ *   ./gradlew assembleRelease -PreleaseAbi=x86_64 -PreactNativeArchitectures=x86_64
+ */
+def allAbis = ["armeabi-v7a", "arm64-v8a", "x86", "x86_64"]
+def releaseAbi = project.findProperty("releaseAbi") ?: "arm64-v8a"
+
+androidComponents {
+    onVariants(selector().withBuildType("release"), { variant ->
+        allAbis.findAll { it != releaseAbi }.each { abi ->
+            variant.packaging.jniLibs.excludes.add("lib/${abi}/**")
+        }
+    })
 }
 
 dependencies {

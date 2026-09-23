@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getSubscriptionHistory } from "../../services/subscriptionService";
 import type { MySubscription } from "../../services/subscriptionService";
+import { getRemainingBadge } from "../../utils/duration";
 
 export default function Subscription() {
   const [subscriptions, setSubscriptions] = useState<MySubscription[]>([]);
@@ -200,9 +201,21 @@ export default function Subscription() {
                   }}
                 >
                   <span style={{ color: "#60a5fa", fontSize: 16, fontWeight: 800 }}>
-                    {sub.daysRemaining}
+                    {
+                      getRemainingBadge(sub.endDate, {
+                        days: "days remaining",
+                        short: "remaining",
+                      }).value
+                    }
                   </span>
-                  <span style={{ color: "#bfdbfe", fontSize: 11 }}>days remaining</span>
+                  <span style={{ color: "#bfdbfe", fontSize: 11 }}>
+                    {
+                      getRemainingBadge(sub.endDate, {
+                        days: "days remaining",
+                        short: "remaining",
+                      }).caption
+                    }
+                  </span>
                 </div>
               )}
             </div>

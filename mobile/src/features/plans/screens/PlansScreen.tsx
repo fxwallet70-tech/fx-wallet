@@ -34,6 +34,11 @@ import PressableScale from '../../../shared/components/animations/PressableScale
 import HoverWiggle from '../../../shared/components/animations/HoverWiggle';
 import GlassCard from '../../../shared/components/Card/GlassCard';
 import {purchaseUsingWallet} from '../services/planService';
+import {
+  formatPlanDuration,
+  getPlanEndDate,
+  getRemainingTime,
+} from '../../../shared/utils/duration';
 import {getWalletSummary} from '../../wallet/services/walletService';
 import {
   getCdmSetting,
@@ -48,6 +53,8 @@ interface Plan {
   category: string;
   price: number;
   duration: number;
+  durationHours?: number;
+  durationMinutes?: number;
   returnAmount: number;   // <-- ADD THIS
   displayOrder: number;
   status: boolean;
@@ -257,9 +264,8 @@ const PlansScreen = () => {
       );
 
       // Save pending CDM submission locally so Dashboard can show it
-      const startDate = new Date().toISOString();
-      const endDate = new Date();
-      endDate.setDate(endDate.getDate() + (plan.duration || 0));
+      const startDate = new Date();
+      const endDate = getPlanEndDate(startDate, plan);
 
       const pendingSub = {
         id: `pending-cdm-${plan._id}-${Date.now()}`,
@@ -269,9 +275,11 @@ const PlansScreen = () => {
           description: plan.description,
           price: plan.price,
           duration: plan.duration,
+          durationHours: plan.durationHours,
+          durationMinutes: plan.durationMinutes,
           returnAmount: plan.returnAmount,
         },
-        startDate,
+        startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
         status: 'Pending' as const,
         amountPaid: plan.price || 0,
@@ -279,8 +287,10 @@ const PlansScreen = () => {
         paymentMethod: 'CDM' as const,
         paymentStatus: 'Pending' as const,
         returnStatus: 'Pending' as const,
-        daysRemaining: plan.duration || 0,
-        createdAt: startDate,
+        daysRemaining: getRemainingTime(
+          endDate.toISOString(),
+        ).days,
+        createdAt: startDate.toISOString(),
       };
 
       try {
@@ -429,7 +439,7 @@ const PlansScreen = () => {
           </View>
 
           <Text style={styles.duration}>
-            {item.duration} days
+            {formatPlanDuration(item)}
           </Text>
         </View>
 
@@ -451,7 +461,7 @@ const PlansScreen = () => {
           </Text>
 
           <Text style={styles.priceDuration}>
-            / {item.duration} days
+            / {formatPlanDuration(item)}
           </Text>
         </View>
 

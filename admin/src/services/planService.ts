@@ -8,6 +8,8 @@ export interface Plan {
   image: string;
   price: number;
   duration: number;
+  durationHours: number;
+  durationMinutes: number;
   returnAmount: number;
   displayOrder: number;
   status: boolean;
